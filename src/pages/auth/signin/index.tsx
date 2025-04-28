@@ -5,19 +5,46 @@ import { Input } from '@/components/ui/input';
 import loginImg from '@/assets/login-img.png';
 import logopng from '@/assets/logo.svg';
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import Cookies from 'js-cookie';
+import toast from 'react-hot-toast';
+import { Eye, EyeOff } from 'lucide-react';
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const handleLogin = (e) => {
-    e.preventDefault(); // if it's inside a <form>
-    
-    // Optional: do login logic here...
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPwd, setShowPwd] = useState(false);
 
-    navigate('/');
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/user/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        // store token
+        Cookies.set('token', data.token, { expires: 7 });
+
+        toast.success('Login Successful! 🎉'); // 👈 show success toast
+
+        navigate('/');
+      } else {
+        toast.error(data.message || 'Login failed! 🚫'); // 👈 show error toast
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      toast.error('Something went wrong! ❌');
+    }
   };
-
-
-
 
   return (
     <div className="flex h-screen w-full">
@@ -33,14 +60,13 @@ export default function LoginPage() {
                 className="h-full w-full object-cover"
               />
             </div>
-            {/* <h1 className="text-2xl font-bold tracking-tight">PARK</h1> */}
           </div>
 
           <div className="text-center">
             <h2 className="text-xl font-semibold">Welcome back!</h2>
           </div>
 
-          <form className="space-y-6">
+          <form className="space-y-6" onSubmit={handleLogin}>
             <div className="space-y-2">
               <label htmlFor="email" className="text-sm font-medium">
                 Email address
@@ -48,36 +74,52 @@ export default function LoginPage() {
               <Input
                 id="email"
                 name="email"
-                type="email"
+                type="text"
                 placeholder="Enter your email"
-                // required
                 className="w-full"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
 
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label htmlFor="password" className="text-sm font-medium">
-                  Password
-                </label>
-              </div>
+            {/* <div className="space-y-2">
+              <label htmlFor="password" className="text-sm font-medium">
+                Password
+              </label>
               <Input
                 id="password"
                 name="password"
                 type="password"
                 placeholder="••••••"
-                // required
                 className="w-full"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
               />
+            </div> */}
+            <div className="relative space-y-2">
+              <label htmlFor="password" className="text-sm font-medium">
+                Password
+              </label>
+              <Input
+                id="password"
+                name="password"
+                type={showPwd ? 'text' : 'password'} // ← toggle here
+                placeholder="••••••"
+                className="w-full pr-10" // ← add right padding
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPwd((s) => !s)} // ← flip showPwd
+                className="top-50 absolute right-3 text-gray-500 hover:text-gray-700"
+                tabIndex={-1}
+              >
+                {showPwd ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
             </div>
 
-            <div className="flex items-center justify-between">
-              {/* <div className="flex items-center space-x-2">
-                <Checkbox id="remember" />
-                <label htmlFor="remember" className="text-sm">
-                  Remember for 30 days
-                </label>
-              </div> */}
+            <div className="flex items-center justify-end">
               <Link
                 to="/forgot-password"
                 className="text-sm text-gray-600 hover:underline"
@@ -87,71 +129,12 @@ export default function LoginPage() {
             </div>
 
             <Button
-              
               type="submit"
               className="w-full bg-black text-white hover:bg-gray-800"
-              onClick={handleLogin}
             >
               Login
             </Button>
           </form>
-
-          {/* <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="bg-white px-2 text-gray-500">Or</span>
-            </div>
-          </div> */}
-
-          {/* <div className="flex gap-4">
-            <Button variant="outline" className="flex w-full items-center justify-center gap-2">
-              
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <circle cx="12" cy="12" r="10" />
-                <path d="M17.13 17.13c-1.41 1.41-3.12 2.33-5.13 2.33-4.97 0-9-4.03-9-9s4.03-9 9-9c2.01 0 3.72.92 5.13 2.33" />
-                <path d="M19 12h-7" />
-                <path d="M16 9l3 3-3 3" />
-              </svg>
-              Sign in with Google
-            </Button>
-
-            <Button variant="outline" className="flex w-full items-center justify-center gap-2">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06Z" />
-                <path d="M10 2c1 .5 2 2 2 5" />
-              </svg>
-              Sign in with Apple
-            </Button>
-          </div>  */}
-
-          {/* <div className="text-center text-sm">
-            Don&apos;t have an account?{" "}
-            <Link to="/signup" className="font-medium text-black hover:underline">
-              Sign Up
-            </Link>
-          </div> */}
         </div>
       </div>
 

@@ -1,10 +1,44 @@
-import { ChevronDown, Search } from 'lucide-react';
+import { ChevronDown, LogOutIcon, Search } from 'lucide-react';
 import { Link, NavLink } from 'react-router-dom';
 import placeholderImg from '@/assets/logo.svg';
 import MasterDropdown from './MasterDropdown';
 import Notification from './Dashboard/Notification';
 import Profile from './Dashboard/Profile';
+import { Button } from '@/components/ui/button';
+import Cookies from 'js-cookie';
+import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 export function Navbar() {
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    toast(
+      (t) => (
+        <div className="space-y-2 ">
+          <div>Are you sure you want to logout?</div>
+          <div className="flex justify-end space-x-2">
+            <button
+              onClick={() => {
+                Cookies.remove('token');
+                toast.dismiss(t.id);
+                navigate('/login', { replace: true });
+              }}
+              className="rounded bg-red-500 px-3 py-1 text-white"
+            >
+              Yes
+            </button>
+            <button
+              onClick={() => toast.dismiss(t.id)}
+              className="rounded bg-gray-200 px-3 py-1"
+            >
+              No
+            </button>
+          </div>
+        </div>
+      ),
+      { duration: 2000 }
+    );
+  };
+
   return (
     <header className="flex items-center justify-between border-b border-gray-200 px-8 py-4">
       <div className="flex items-center gap-12">
@@ -65,14 +99,28 @@ export function Navbar() {
             Customer Feedback
           </NavLink>
 
-          <NavLink
+          {/* <NavLink
             to="/login"
             className={({ isActive }) =>
               `font-bold text-[#111111] ${isActive ? 'underline decoration-2 underline-offset-4' : 'no-underline'}`
             }
           >
-            Login
-          </NavLink>
+            Logout
+          </NavLink> */}
+          {/* <button
+  onClick={handleLogout}
+  className=" font-bold text-[#111111] hover: rounded-full border border-red-200  hover:bg-red-300 px-3 py-1 flex items-center justify-center"
+>
+  Logout
+</button> */}
+          <Button
+            variant="outline"
+            className=" inline-flex items-center space-x-2 rounded-full bg-red-500 text-[#ffffff] hover:bg-red-600"
+            onClick={handleLogout}
+          >
+            <LogOutIcon className="h-4 w-4" />
+            <span>Logout</span>
+          </Button>
         </nav>
       </div>
       <div className="flex items-center gap-4">

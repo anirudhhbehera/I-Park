@@ -1,13 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { User, Hotel, MapPin } from 'lucide-react'; // Using Lucide icons
 import placeholderImg from '@/assets/logo.svg';
 
 export default function Profile() {
   const [openPopup, setOpenPopup] = useState(false);
-
+  const popupRef = useRef(null);
   const togglePopup = () => {
     setOpenPopup(!openPopup);
   };
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        popupRef.current &&
+        !popupRef.current.contains(event.target as Node)
+      ) {
+        setOpenPopup(false); // Close popup
+      }
+    };
+
+    // Add event listener to detect clicks outside
+    document.addEventListener('mousedown', handleClickOutside);
+
+    // Clean up the event listener when the component unmounts
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   return (
     <div>
@@ -27,7 +45,10 @@ export default function Profile() {
       {/* Popup centered on the whole screen */}
       {openPopup && (
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="relative w-96 rounded-2xl bg-white p-8 text-center shadow-2xl">
+          <div
+            ref={popupRef}
+            className="relative w-96 rounded-2xl bg-white p-8 text-center shadow-2xl"
+          >
             {/* Profile Image */}
             <img
               src={placeholderImg}

@@ -3,7 +3,13 @@ import NotFound from '@/pages/not-found';
 import path from 'path';
 import { Suspense, lazy } from 'react';
 import { Navigate, Outlet, useRoutes } from 'react-router-dom';
+import Cookies from 'js-cookie';
 
+// 2️⃣ Below your imports, before AppRouter, define:
+function ProtectedRoute({ children }: { children: JSX.Element }) {
+  const token = Cookies.get('token');
+  return token ? children : <Navigate to="/login" replace />;
+}
 const DashboardLayout = lazy(
   () => import('@/components/layout/dashboard-layout')
 );
@@ -35,11 +41,13 @@ export default function AppRouter() {
     {
       path: '/',
       element: (
-        <DashboardLayout>
-          <Suspense>
-            <Outlet />
-          </Suspense>
-        </DashboardLayout>
+        <ProtectedRoute>
+          <DashboardLayout>
+            <Suspense>
+              <Outlet />
+            </Suspense>
+          </DashboardLayout>
+        </ProtectedRoute>
       ),
       children: [
         {
