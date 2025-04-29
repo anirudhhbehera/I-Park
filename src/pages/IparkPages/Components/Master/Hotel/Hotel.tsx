@@ -63,7 +63,8 @@ import PDFExporter from '../../Reusablecode/PDFExporter';
 import ExcelExporter from '../../Reusablecode/ExcelExporter';
 import myGif from '../../Reusablecode/loadergif.gif';
 import { BsHouseDoorFill } from 'react-icons/bs';
-
+import { Building, Plus } from 'lucide-react';
+// import { Button } from "@/components/ui/button"
 export default function Hotel() {
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -430,7 +431,7 @@ export default function Hotel() {
               fontFamily: "'Poppins', sans-serif"
             }}
           >
-            <BsHouseDoorFill style={{ fontSize: '24px', color: 'black' }} />
+            <Building className="h-6 w-6" />
             Hotel
           </h2>
         </div>
@@ -457,9 +458,13 @@ export default function Hotel() {
             className="add-container d-flex align-items-center"
             onClick={() => setAddModalOpen(true)}
           >
-            <div className="add-icon">+</div>
+            <Plus className="h-4 w-4" />
             <span className="add-text ms-2">ADD</span>
           </div>
+          {/* <Button  onClick={() => setAddModalOpen(true)} className="gap-1">
+            <Plus className="h-4 w-4" />
+            <span>ADD</span>
+          </Button> */}
           <CDropdown className="position-relative me-3">
             <CDropdownToggle
               color="secondary"

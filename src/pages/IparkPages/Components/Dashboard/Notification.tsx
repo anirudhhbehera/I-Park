@@ -35,7 +35,7 @@ export default function Notification() {
         <Bell className="h-5 w-5 text-gray-700" />
       </button>
       {open ? (
-        <div className="absolute right-0 top-8 z-50 rounded-md bg-white p-4 shadow-lg">
+        <div className="absolute right-0 top-8 z-50 w-60 rounded-md bg-white p-4 shadow-lg">
           <div className="flex justify-between">
             <DeleteIcon className="text-gray-500" />
             <div onClick={() => setvolumeup(!volumeup)}>
@@ -47,7 +47,11 @@ export default function Notification() {
             </div>
           </div>
           {/* Your notification content here */}
-          <p>You have a notification!</p>
+          <div className="mt-2 flex flex-col items-center">
+            <p className="mt-2 text-sm text-gray-700">
+              You have a new message!
+            </p>
+          </div>
         </div>
       ) : null}
     </div>

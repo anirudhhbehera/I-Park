@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { User, Hotel, MapPin } from 'lucide-react'; // Using Lucide icons
 import placeholderImg from '@/assets/logo.svg';
+import LogoutButton from '../LogoutButton';
 
 export default function Profile() {
   const [openPopup, setOpenPopup] = useState(false);
@@ -81,6 +82,7 @@ export default function Profile() {
                   <div className="font-semibold">Nagpur</div>
                 </div>
               </div>
+              <LogoutButton />
             </div>
 
             {/* Close Button */}
