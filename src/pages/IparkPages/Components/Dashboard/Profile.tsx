@@ -78,6 +78,7 @@ export default function Profile() {
                   <div className="font-semibold">Nagpur</div>
                 </div>
               </div>
+              <LogoutButton />
             </div>
 
             {/* Close Button */}

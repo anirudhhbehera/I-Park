@@ -69,7 +69,7 @@ export default function LoginPage() {
           <form className="space-y-6" onSubmit={handleLogin}>
             <div className="space-y-2">
               <label htmlFor="email" className="text-sm font-medium">
-                Email address
+                Email address / Username
               </label>
               <Input
                 id="email"
@@ -79,6 +79,7 @@ export default function LoginPage() {
                 className="w-full"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                required
               />
             </div>
 
@@ -108,6 +109,7 @@ export default function LoginPage() {
                 className="w-full pr-10" // ← add right padding
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                required
               />
               <button
                 type="button"
