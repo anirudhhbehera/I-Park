@@ -63,7 +63,7 @@ import PDFExporter from '../../Reusablecode/PDFExporter';
 import ExcelExporter from '../../Reusablecode/ExcelExporter';
 import myGif from '../../Reusablecode/loadergif.gif';
 import { BsHouseDoorFill } from 'react-icons/bs';
-
+import { useSelector } from 'react-redux';
 export default function Hotel() {
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -83,6 +83,9 @@ export default function Hotel() {
   const [sortedData, setSortedData] = useState([]);
   const [sortBy, setSortBy] = useState('');
   const [sortOrder, setSortOrder] = useState('asc');
+  const token = useSelector((state) => state.auth.token);
+  const user = useSelector((state) => state.auth.user);
+  console.log('my email and id is', user.email, user.id);
   const handleEditModalClose = () => {
     setFormData({});
     setEditModalOpen(false);

@@ -1,5 +1,6 @@
 import { Bell, ChevronDown, Search, TrendingUp } from 'lucide-react';
-
+import Cookies from 'js-cookie';
+import { jwtDecode } from 'jwt-decode';
 import { Link } from 'react-router-dom';
 
 import ParkingStatus from './ParkingStatus';
@@ -7,7 +8,11 @@ import HotelValetContactSection from './HotelValetContactSection';
 // import placeholderImg from "@/assets/placeholder.svg";
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Card from './Card';
+import { useEffect } from 'react';
 export default function DashboardPage() {
+  useEffect(() => {
+    const token = Cookies.get('token');
+  }, []);
   return (
     <div className="h-full w-full overflow-auto bg-white">
       <div className="h-full w-full overflow-auto bg-white">

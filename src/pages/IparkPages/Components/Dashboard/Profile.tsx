@@ -1,13 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { User, Hotel, MapPin } from 'lucide-react'; // Using Lucide icons
 import placeholderImg from '@/assets/logo.svg';
-
+import { useSelector } from 'react-redux';
 export default function Profile() {
   const [openPopup, setOpenPopup] = useState(false);
+
   const popupRef = useRef(null);
+  const token = useSelector((state) => state.auth.token);
+  const user = useSelector((state) => state.auth.user);
   const togglePopup = () => {
     setOpenPopup(!openPopup);
   };
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -20,7 +24,7 @@ export default function Profile() {
 
     // Add event listener to detect clicks outside
     document.addEventListener('mousedown', handleClickOutside);
-
+    console.log('mm');
     // Clean up the event listener when the component unmounts
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
@@ -29,13 +33,6 @@ export default function Profile() {
 
   return (
     <div>
-      {/* Profile Icon */}
-      {/* <div 
-        onClick={togglePopup} 
-        className="relative z-50 h-8 w-8 bg-gray-300 rounded-full overflow-hidden cursor-pointer"
-      >
-        <img src={placeholderImg} alt="Profile" width={32} height={32} />
-      </div> */}
       <div
         onClick={togglePopup}
         className="relative z-50 flex h-8 w-8 cursor-pointer items-center justify-center overflow-hidden rounded-full bg-gray-300"
@@ -62,7 +59,7 @@ export default function Profile() {
                 <User className="text-blue-500" size={20} />
                 <div className="text-left">
                   <div className="text-xs text-gray-400">Username</div>
-                  <div className="font-semibold">DemoUser</div>
+                  <div className="font-semibold">{user?.email}</div>
                 </div>
               </div>
 
