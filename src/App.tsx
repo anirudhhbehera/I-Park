@@ -10,10 +10,22 @@
 //   );
 // }
 import AppProvider from './providers';
-import AppRouter from './routes';
+import { useDispatch } from 'react-redux';
+import { useEffect } from 'react';
+import Cookies from 'js-cookie';
+import { setToken } from './store/authSlice'; // adjust the path if needed
 import { Toaster } from 'react-hot-toast';
+import AppRouter from './routes';
+function App() {
+  const dispatch = useDispatch();
 
-export default function App() {
+  useEffect(() => {
+    const token = Cookies.get('token');
+    if (token) {
+      dispatch(setToken(token)); // ⬅️ Will decode and populate user
+    }
+  }, [dispatch]);
+
   return (
     <AppProvider>
       <Toaster position="top-center" reverseOrder={false} />
@@ -21,3 +33,5 @@ export default function App() {
     </AppProvider>
   );
 }
+
+export default App;

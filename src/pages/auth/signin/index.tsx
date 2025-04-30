@@ -9,12 +9,15 @@ import { useState } from 'react';
 import Cookies from 'js-cookie';
 import toast from 'react-hot-toast';
 import { Eye, EyeOff } from 'lucide-react';
+import { useDispatch } from 'react-redux';
+import { setToken } from '@/store/authSlice'; // adjust path as needed
 
 export default function LoginPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPwd, setShowPwd] = useState(false);
+  const dispatch = useDispatch();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,12 +33,20 @@ export default function LoginPage() {
 
       const data = await res.json();
 
+      // if (res.ok) {
+      //   // store token
+      //   Cookies.set('token', data.token, { expires: 7 });
+
+      //   toast.success('Login Successful! 🎉'); // 👈 show success toast
+
+      //   navigate('/');
+      // }
       if (res.ok) {
-        // store token
         Cookies.set('token', data.token, { expires: 7 });
 
-        toast.success('Login Successful! 🎉'); // 👈 show success toast
+        dispatch(setToken(data.token)); // 👈 Update Redux with user details
 
+        toast.success('Login Successful! 🎉');
         navigate('/');
       } else {
         toast.error(data.message || 'Login failed! 🚫'); // 👈 show error toast

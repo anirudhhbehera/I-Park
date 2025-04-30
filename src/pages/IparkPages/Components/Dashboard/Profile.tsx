@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { User, Hotel, MapPin } from 'lucide-react'; // Using Lucide icons
 import placeholderImg from '@/assets/logo.svg';
 import { useSelector } from 'react-redux';
+import LogoutButton from '../LogoutButton';
 export default function Profile() {
   const [openPopup, setOpenPopup] = useState(false);
 
@@ -11,6 +12,10 @@ export default function Profile() {
   const togglePopup = () => {
     setOpenPopup(!openPopup);
   };
+  useEffect(() => {
+    console.log('User from Redux:', user);
+    console.log('Token from Redux:', token);
+  }, [user, token]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

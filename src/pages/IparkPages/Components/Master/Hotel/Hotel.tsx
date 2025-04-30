@@ -64,6 +64,9 @@ import ExcelExporter from '../../Reusablecode/ExcelExporter';
 import myGif from '../../Reusablecode/loadergif.gif';
 import { BsHouseDoorFill } from 'react-icons/bs';
 import { useSelector } from 'react-redux';
+import { Building } from 'lucide-react';
+import { Plus } from 'lucide-react';
+
 export default function Hotel() {
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -85,7 +88,7 @@ export default function Hotel() {
   const [sortOrder, setSortOrder] = useState('asc');
   const token = useSelector((state) => state.auth.token);
   const user = useSelector((state) => state.auth.user);
-  console.log('my email and id is', user.email, user.id);
+
   const handleEditModalClose = () => {
     setFormData({});
     setEditModalOpen(false);
@@ -113,7 +116,9 @@ export default function Hotel() {
     padding: '1rem',
     marginTop: '8px'
   };
-
+  useEffect(() => {
+    console.log('my email and id is', user?.email, user?.id);
+  }, []);
   // ##################### getting data  ###################
   const fetchData = async () => {
     const accessToken = Cookies.get('token');

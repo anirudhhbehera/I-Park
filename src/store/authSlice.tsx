@@ -4,12 +4,28 @@ import { jwtDecode } from 'jwt-decode';
 
 // Try to fetch token from cookies
 const initialToken = Cookies.get('token');
+
 let initialUser = null;
 
+// if (initialToken) {
+//   try {
+//     const decoded = jwtDecode(initialToken);
+//     // Validate minimal required fields
+//     if (decoded && decoded.id && decoded.email && decoded.role) {
+//       initialUser = {
+//         id: decoded.id,
+//         email: decoded.email,
+//         role: decoded.role
+//       };
+//     }
+//   }
+//   catch (e) {
+//     console.error('Token decode failed:', e);
+//   }
+// }
 if (initialToken) {
   try {
     const decoded = jwtDecode(initialToken);
-    // Validate minimal required fields
     if (decoded && decoded.id && decoded.email && decoded.role) {
       initialUser = {
         id: decoded.id,
