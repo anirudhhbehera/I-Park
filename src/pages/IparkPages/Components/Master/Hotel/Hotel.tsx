@@ -66,6 +66,7 @@ import { BsHouseDoorFill } from 'react-icons/bs';
 import { useSelector } from 'react-redux';
 import { Building } from 'lucide-react';
 import { Plus } from 'lucide-react';
+import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai';
 
 export default function Hotel() {
   const [addModalOpen, setAddModalOpen] = useState(false);
@@ -88,7 +89,14 @@ export default function Hotel() {
   const [sortOrder, setSortOrder] = useState('asc');
   const token = useSelector((state) => state.auth.token);
   const user = useSelector((state) => state.auth.user);
+  const [visiblePassword, setvisiblePassword] = useState({});
 
+  const togglePasswordVisibility = (index) => {
+    setvisiblePassword((prev) => ({
+      ...prev,
+      [index]: !prev[index]
+    }));
+  };
   const handleEditModalClose = () => {
     setFormData({});
     setEditModalOpen(false);
@@ -121,19 +129,18 @@ export default function Hotel() {
   }, []);
   // ##################### getting data  ###################
   const fetchData = async () => {
-    const accessToken = Cookies.get('token');
-    const url = `${import.meta.env.VITE_SERVER_URL}/api/company`;
-    console.log('to', accessToken);
+    const url = `${import.meta.env.VITE_API_URL}/hotel/get`;
+    console.log('to', token);
     try {
       const response = await axios.get(url, {
-        headers: { Authorization: `Bearer ${accessToken}` }
+        headers: { Authorization: `Bearer ${token}` }
       });
       if (response.data) {
         const formattedData = response.data.map((item) => ({
           ...item,
           createdAt: formatDate(item.createdAt)
         }));
-        console.log('company ..', formattedData);
+        console.log('Hotel ..', formattedData);
         setData(formattedData);
         setSortedData(formattedData);
         setLoading(false);
@@ -168,7 +175,7 @@ export default function Hotel() {
       setFilteredData(data); // No query, show all drivers
     } else {
       const filtered = data.filter((group) =>
-        group.companyName.toLowerCase().includes(searchQuery.toLowerCase())
+        group.HotelName.toLowerCase().includes(searchQuery.toLowerCase())
       );
       setFilteredData(filtered);
       setCurrentPage(1);
@@ -214,20 +221,19 @@ export default function Hotel() {
     e.preventDefault();
     console.log(formData);
     try {
-      const accessToken = Cookies.get('token');
       const response = await axios.post(
-        `${import.meta.env.VITE_SERVER_URL}/api/company`,
+        `${import.meta.env.VITE_API_URL}/hotel/add`,
         formData,
         {
           headers: {
-            Authorization: `Bearer ${accessToken}`,
+            Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json'
           }
         }
       );
 
       if (response.status === 201) {
-        toast.success('Company is created successfully');
+        toast.success('Hotel is created successfully');
         fetchData();
         setFormData({ name: '' });
         setAddModalOpen(false);
@@ -237,6 +243,7 @@ export default function Hotel() {
         error.response && error.response.data && error.response.data.message
           ? error.response.data.message
           : 'An error occurred. Please try again.';
+      console.log('error', error);
 
       toast.error(errorMessage);
     }
@@ -256,19 +263,18 @@ export default function Hotel() {
     e.preventDefault();
     console.log(formData);
     try {
-      const accessToken = Cookies.get('token');
       const response = await axios.put(
-        `${import.meta.env.VITE_SERVER_URL}/api/company/${formData._id}`,
+        `${import.meta.env.VITE_API_URL}/hotel/update/${formData._id}`,
         formData,
         {
           headers: {
-            Authorization: `Bearer ${accessToken}`
+            Authorization: `Bearer ${token}`
           }
         }
       );
 
       if (response.status === 200) {
-        toast.success('Company is edited successfully');
+        toast.success('Hotel is edited successfully');
         fetchData();
         setFormData({ name: '' });
         setEditModalOpen(false);
@@ -302,7 +308,7 @@ export default function Hotel() {
           <p>
             Do you want to delete{' '}
             <u>
-              <b>{item.companyName}</b>
+              <b>{item.HotelName}</b>
             </u>{' '}
             user?
           </p>
@@ -319,30 +325,29 @@ export default function Hotel() {
                 toast.dismiss(t.id);
 
                 try {
-                  const accessToken = Cookies.get('token');
-                  if (!accessToken) {
+                  if (!token) {
                     toast.error('Authentication token is missing.');
                     return;
                   }
 
                   const response = await axios({
                     method: 'DELETE',
-                    url: `${import.meta.env.VITE_SERVER_URL}/api/company/${item._id}`,
+                    url: `${import.meta.env.VITE_API_URL}/hotel/delete/${item._id}`,
                     headers: {
-                      Authorization: `Bearer ${accessToken}`,
+                      Authorization: `Bearer ${token}`,
                       'Content-Type': 'application/json'
                     }
                   });
 
                   // Check if deletion was successful
-                  toast.success('Company deleted successfully');
+                  toast.success('Hotel deleted successfully');
                   fetchData();
                 } catch (error) {
                   console.error(
                     'Error Details:',
                     error.response || error.message
                   );
-                  toast.error('An error occurred while deleting the Company.');
+                  toast.error('An error occurred while deleting the Hotel.');
                 }
               }}
               style={{
@@ -378,14 +383,14 @@ export default function Hotel() {
     mytitle: 'Branches Data Report',
     columns: COLUMNS(),
     data: filteredData,
-    fileName: 'company_data.xlsx'
+    fileName: 'Hotel_data.xlsx'
   });
 
   const exportToPDF = PDFExporter({
-    title: 'Company Data Report',
+    title: 'Hotel Data Report',
     columns: COLUMNS(),
     data: filteredData,
-    fileName: 'Company_data_report.pdf'
+    fileName: 'Hotel_data_report.pdf'
   });
 
   const handleSort = (accessor) => {
@@ -621,7 +626,28 @@ export default function Hotel() {
                             index % 2 === 0 ? 'transparent' : '#f1f8fd'
                         }}
                       >
-                        {item[col.accessor] || '--'}
+                        {col.accessor === 'password' ? (
+                          <div className="flex items-center justify-center">
+                            <span>
+                              {visiblePassword[index]
+                                ? item[col.accessor]
+                                : '........'}
+                            </span>
+                            <IconButton
+                              onClick={() => togglePasswordVisibility(index)}
+                              size="small"
+                              style={{ marginLeft: 5 }}
+                            >
+                              {visiblePassword[index] ? (
+                                <AiFillEyeInvisible />
+                              ) : (
+                                <AiFillEye />
+                              )}
+                            </IconButton>
+                          </div>
+                        ) : (
+                          item[col.accessor] || '--'
+                        )}
                       </CTableDataCell>
                     ))}
 
@@ -699,7 +725,7 @@ export default function Hotel() {
         <Box sx={style}>
           <div className="d-flex justify-content-between">
             <Typography id="modal-modal-title" variant="h6" component="h2">
-              Add New Company
+              Add New Hotel
             </Typography>
             <IconButton onClick={handleAddModalClose}>
               <CloseIcon />
@@ -723,8 +749,8 @@ export default function Hotel() {
                       name={column.accessor}
                       value={formData[column.accessor] || ''}
                       required={
-                        column.accessor === 'companyName' ||
-                        column.accessor === 'username' ||
+                        column.accessor === 'name' ||
+                        column.accessor === 'email' ||
                         column.accessor === 'password'
                       }
                       onChange={(e) =>
@@ -773,7 +799,7 @@ export default function Hotel() {
         <Box sx={style}>
           <div className="d-flex justify-content-between">
             <Typography id="modal-modal-title" variant="h6" component="h2">
-              Edit Company
+              Edit Hotel
             </Typography>
             <IconButton onClick={handleEditModalClose}>
               <CloseIcon />
@@ -797,7 +823,7 @@ export default function Hotel() {
                       name={column.accessor}
                       value={formData[column.accessor] || ''} // Pre-fill with existing data
                       required={
-                        column.accessor === 'companyName' ||
+                        column.accessor === 'HotelName' ||
                         column.accessor === 'username' ||
                         column.accessor === 'password'
                       }

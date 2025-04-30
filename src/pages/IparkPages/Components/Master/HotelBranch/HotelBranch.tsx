@@ -41,7 +41,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import { MdConnectWithoutContact } from 'react-icons/md';
 import { AiOutlineUpload } from 'react-icons/ai';
 import ReactPaginate from 'react-paginate';
-import Cookies from 'js-cookie';
+
 import { IoMdAdd } from 'react-icons/io';
 import toast, { Toaster } from 'react-hot-toast';
 import * as XLSX from 'xlsx'; // For Excel export
@@ -65,8 +65,8 @@ import { jwtDecode } from 'jwt-decode';
 
 import { Token } from '@mui/icons-material';
 import debounce from 'lodash.debounce';
+import { useSelector } from 'react-redux';
 
-const token = Cookies.get('token');
 // let role=null
 // if(token){
 //   const decodetoken=jwt_decode(token);
@@ -90,9 +90,12 @@ export default function HotelBranch() {
   const [rowsPerPage, setRowsPerPage] = useState(25);
   const columns = COLUMNS();
   const [sortedData, setSortedData] = useState([]);
-  const [companyData, setCompanyData] = useState([]);
+  const [HotelData, setHotelData] = useState([]);
   const [sortBy, setSortBy] = useState('');
   const [sortOrder, setSortOrder] = useState('asc');
+  const token = useSelector((state) => state.auth.token);
+  const user = useSelector((state) => state.auth.user);
+  const role = user.role;
   const handleEditModalClose = () => {
     setFormData({});
     setEditModalOpen(false);
@@ -102,23 +105,8 @@ export default function HotelBranch() {
     setFormData({});
     setAddModalOpen(false);
   };
-  const [role, setRole] = useState(null);
+  // const [role, setRole] = useState(null);
 
-  useEffect(() => {
-    const fetchRole = () => {
-      const token = Cookies.get('token');
-      if (token) {
-        const decodedToken = jwtDecode(token);
-        console.log(decodedToken);
-
-        setRole(decodedToken.role);
-      } else {
-        setRole(null);
-      }
-    };
-
-    fetchRole(); // Call the function to fetch role
-  }, []);
   const style = {
     position: 'absolute',
     top: '50%',
@@ -137,77 +125,20 @@ export default function HotelBranch() {
     marginTop: '8px'
   };
 
-  // ##################### getting data  ###################
-  // const fetchData = async (page = 1) => {
-  //   const accessToken = Cookies.get('token');
-  //   const url = `https://rocketsales-server.onrender.com/api/branch`;
-
-  //   try {
-  //     const response = await axios.get(url, {
-  //       headers: {
-  //         Authorization: 'Bearer ' + accessToken,
-  //       },
-  //     });
-
-  //     // Log to check the full structure of the response
-  //     console.log("Full Response Data:", response.data);
-
-  //     // Accessing the 'Branches' directly from the response data
-  //     const allData = response.data.Branches?.map((item) => ({
-  //       ...item,
-  //       companyName: item.companyId.companyName, // Extract company name from companyId object
-  //       companyId: item.companyId._id, // Extract companyId from companyId object
-  //     }));
-
-  //     console.log("Processed Data:", allData);
-
-  //     if (allData) {
-  //       // Filter the data based on the search query if it is not empty
-  //       const filteredData = allData
-  //         .map((item) => {
-  //           // Apply the formatDate method to 'createdAt' field if it exists
-  //           if (item.createdAt) {
-  //             item.createdAt = formatDate(item.createdAt);
-  //           }
-
-  //           return item;
-  //         })
-  //         .filter((item) =>
-  //           Object.values(item).some((value) =>
-  //             value.toString().toLowerCase().includes(searchQuery.toLowerCase())
-  //           )
-  //         );
-
-  //       setData(filteredData); // Set the filtered data to `data`
-  //       setSortedData(filteredData); // Set the filtered data to `sortedData`
-  //       setLoading(false);
-  //     } else {
-  //       console.error('Branches data is missing or incorrectly structured.');
-  //       setLoading(false);
-  //     }
-
-  //   } catch (error) {
-  //     setLoading(false);
-  //     console.error('Error fetching data:', error);
-  //     throw error; // Re-throw the error for further handling if needed
-  //   }
-  // };
   const fetchData = async () => {
-    const accessToken = Cookies.get('token');
-    const url = `${import.meta.env.VITE_SERVER_URL}/api/branch`;
+    const url = `${import.meta.env.VITE_API_URL}/branch/get`;
 
     try {
       const response = await axios.get(url, {
-        headers: { Authorization: `Bearer ${accessToken}` }
+        headers: { Authorization: `Bearer ${token}` }
       });
 
       console.log('Raw API response:', response.data); // <--- inspect the structure
 
-      if (response.data && response.data.Branches) {
-        const formattedData = response.data.Branches.map((item) => ({
+      if (response.data) {
+        const formattedData = response.data.map((item) => ({
           ...item,
-          companyName: item.companyId?.companyName,
-          companyId: item.companyId?._id,
+          hotelname: item.hotelId?.name || 'N/A', // Fallback if missing
           createdAt: item.createdAt
             ? formatDate(item.createdAt)
             : item.createdAt
@@ -226,22 +157,20 @@ export default function HotelBranch() {
     }
   };
 
-  const fetchCompany = async () => {
-    const accessToken = Cookies.get('token');
-    const url = `${import.meta.env.VITE_SERVER_URL}/api/company`;
+  const fetchHotel = async () => {
+    const url = `${import.meta.env.VITE_API_URL}/hotel/get`;
 
     try {
       const response = await axios.get(url, {
         headers: {
-          Authorization: 'Bearer ' + accessToken
+          Authorization: 'Bearer ' + token
         }
       });
       console.log('my data response', response.data);
       if (response.data) {
-        // const companydata1 = response.data
-        setCompanyData(response.data);
+        setHotelData(response.data);
       }
-      console.log('companies are', companyData);
+      console.log('hotels are', HotelData);
     } catch (error) {
       setLoading(false);
       console.error('Error fetching data:', error);
@@ -249,7 +178,7 @@ export default function HotelBranch() {
     }
   };
   useEffect(() => {
-    fetchCompany();
+    fetchHotel();
   }, []);
   // Format the date into DD-MM-YYYY format
   function formatDate(date) {
@@ -327,60 +256,32 @@ export default function HotelBranch() {
     fetchData(page);
   };
 
-  // const handleAddSubmit = async (e) => {
-  //   e.preventDefault()
-  //   console.log(formData)
-  //   try {
-  //     const accessToken = Cookies.get('token')
-  //     const response = await axios.post(`${import.meta.env.VITE_SERVER_URL}/api/branch`, formData, {
-  //       headers: {
-  //         Authorization: `Bearer ${accessToken}`,
-  //         'Content-Type': 'application/json',
-  //       },
-  //     })
-
-  //     if (response.status === 201) {
-  //       toast.success('Branch is created successfully')
-  //       fetchData()
-  //       setFormData({ name: '' })
-  //       setAddModalOpen(false)
-  //     }
-  //     fetchData();
-  //   } catch (error) {
-  //     toast.error('An error occured')
-  //     throw error.response ? error.response.data : new Error('An error occurred')
-  //   }
-  // }
-
-  // ###################################################################
-  // ######################### Edit Group #########################
-
   const handleAddSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const accessToken = Cookies.get('token');
-      // const accessToken = token;
+      // const token = Cookies.get('token');
+      // const token = token;
       console.log('MYTT', token);
       let updatedFormData = { ...formData }; // Copy existing formData
 
       if (token) {
-        const decodedToken = jwt_decode(token); // Decode the token
+        // const decodedToken = jwt_decode(token); // Decode the token
         // const role = decodedToken.role;
 
         if (role == 2) {
-          updatedFormData.companyId = decodedToken.id; // Add companyId from the token
+          updatedFormData.hotelId = decodedToken.id; // Add hotelId from the token
         }
       }
 
       console.log('FormData to be submitted:', updatedFormData);
 
       const response = await axios.post(
-        `${import.meta.env.VITE_SERVER_URL}/api/branch`,
+        `${import.meta.env.VITE_SERVER_URL}/branch`,
         updatedFormData,
         {
           headers: {
-            Authorization: `Bearer ${accessToken}`,
+            Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json'
           }
         }
@@ -416,13 +317,13 @@ export default function HotelBranch() {
     e.preventDefault();
     console.log(formData);
     try {
-      const accessToken = Cookies.get('authToken');
+      const token = Cookies.get('authToken');
       const response = await axios.put(
         `${import.meta.env.VITE_SERVER_URL}/api/branch/${formData._id}`,
         formData,
         {
           headers: {
-            Authorization: `Bearer ${accessToken}`
+            Authorization: `Bearer ${token}`
           }
         }
       );
@@ -464,7 +365,7 @@ export default function HotelBranch() {
           <p>
             Do you want to delete{' '}
             <u>
-              <b>{item.branchName}</b>
+              <b>{item.name}</b>
             </u>{' '}
             user?
           </p>
@@ -481,17 +382,17 @@ export default function HotelBranch() {
                 toast.dismiss(t.id);
 
                 try {
-                  const accessToken = Cookies.get('token');
-                  if (!accessToken) {
+                  // const token = Cookies.get('token');
+                  if (!token) {
                     toast.error('Authentication token is missing.');
                     return;
                   }
 
                   const response = await axios({
                     method: 'DELETE',
-                    url: `${import.meta.env.VITE_SERVER_URL}/api/branch/${item._id}`,
+                    url: `${import.meta.env.VITE_API_URL}/branch/${item._id}`,
                     headers: {
-                      Authorization: `Bearer ${accessToken}`,
+                      Authorization: `Bearer ${token}`,
                       'Content-Type': 'application/json'
                     }
                   });
@@ -535,41 +436,6 @@ export default function HotelBranch() {
       { duration: Infinity }
     );
   };
-  // const haqndleDeletesubmit = async (item) => {
-  //   if (!item._id) {
-  //     toast.error('Invalid item selected for deletion.')
-  //     return
-  //   }
-
-  //   const confirmed = confirm('Do you want to delete this user?')
-  //   if (!confirmed) return
-
-  //   try {
-  //     const accessToken = Cookies.get('token')
-  //     if (!accessToken) {
-  //       toast.error('Authentication token is missing.')
-  //       return
-  //     }
-
-  //     const response = await axios({
-  //       method: 'DELETE', // Explicitly specifying DELETE method
-  //       // url: `${import.meta.env.VITE_SERVER_URL}/api/delete-branch/${item._id}`,
-  //       url: `${import.meta.env.VITE_SERVER_URL}/api/branch/${item._id}`,
-  //       headers: {
-  //         Authorization: `Bearer ${accessToken}`,
-  //         'Content-Type': 'application/json',
-  //       },
-  //     })
-
-  //     if (response.status === 200) {
-  //       toast.success('Branch deleted successfully')
-  //       fetchData()
-  //     }
-  //   } catch (error) {
-  //     console.error('Error Details:', error.response || error.message)
-  //     toast.error('An error occurred while deleting the Branch.')
-  //   }
-  // }
 
   const exportToExcel = ExcelExporter({
     columns: COLUMNS(),
@@ -911,26 +777,26 @@ export default function HotelBranch() {
               >
                 {role == 1 ? (
                   <>
-                    <FormControl
+                    {/* <FormControl
                       variant="outlined"
                       sx={{ marginBottom: '10px' }}
                       fullWidth
                     >
                       <Autocomplete
-                        id="searchable-company-select"
-                        options={Array.isArray(companyData) ? companyData : []} // Ensure companyData is an array
+                        id="searchable-hotel-select"
+                        options={Array.isArray(HotelData) ? HotelData : []} // Ensure HotelData is an array
                         getOptionLabel={(option) => option.companyName || ''} // Display company name
                         value={
-                          Array.isArray(companyData)
-                            ? companyData.find(
-                                (company) => company._id == formData.companyId
+                          Array.isArray(HotelData)
+                            ? HotelData.find(
+                             (company) => company._id == formData.hotelId
                               )
                             : null
                         } // Safely find the selected company
                         onChange={(event, newValue) => {
                           setFormData({
                             ...formData,
-                            companyId: newValue?._id || ''
+                            hotelId: newValue?._id || ''
                           });
                         }}
                         renderInput={(params) => (
@@ -938,7 +804,7 @@ export default function HotelBranch() {
                             {...params}
                             label="Company Name"
                             variant="outlined"
-                            name="companyId"
+                            name="hotelId"
                             required
                             placeholder="Select Company" // Dynamic placeholder
                             InputProps={{
@@ -954,6 +820,54 @@ export default function HotelBranch() {
                                 color: 'red',
                                 fontSize: '1.4rem'
                                 // fontWeight: "bold",
+                              }
+                            }}
+                          />
+                        )}
+                      />
+                    </FormControl> */}
+                    <FormControl
+                      variant="outlined"
+                      sx={{ marginBottom: '10px' }}
+                      fullWidth
+                    >
+                      <Autocomplete
+                        id="searchable-hotel-select"
+                        options={Array.isArray(HotelData) ? HotelData : []}
+                        getOptionLabel={(option) => option.name || ''} // <-- use 'name' instead of 'companyName'
+                        value={
+                          Array.isArray(HotelData)
+                            ? HotelData.find(
+                                (hotel) => hotel._id === formData.hotelId
+                              )
+                            : null
+                        }
+                        onChange={(event, newValue) => {
+                          setFormData({
+                            ...formData,
+                            hotelId: newValue?._id || ''
+                          });
+                        }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label="Hotel Name"
+                            variant="outlined"
+                            name="hotelId"
+                            required
+                            placeholder="Select Hotel"
+                            InputProps={{
+                              ...params.InputProps,
+                              startAdornment: (
+                                <InputAdornment position="start">
+                                  <BusinessIcon />
+                                </InputAdornment>
+                              )
+                            }}
+                            sx={{
+                              '& .MuiFormLabel-asterisk': {
+                                color: 'red',
+                                fontSize: '1.4rem'
                               }
                             }}
                           />
@@ -1047,28 +961,26 @@ export default function HotelBranch() {
                       fullWidth
                     >
                       <Autocomplete
-                        id="searchable-company-select"
-                        options={Array.isArray(companyData) ? companyData : []} // Ensure companyData is an array
-                        getOptionLabel={(option) => option.companyName || ''} // Display company name
+                        id="searchable-hotel-select"
+                        options={Array.isArray(HotelData) ? HotelData : []} // Ensure HotelData is an array
+                        getOptionLabel={(option) => option.name || ''} // Display company name
                         value={
-                          Array.isArray(companyData)
-                            ? companyData.find(
-                                (company) => company._id == formData.companyId
-                              )
+                          Array.isArray(HotelData)
+                            ? HotelData.find((hotel) => hotel._id == hotel._id)
                             : null
                         } // Safely find the selected company
                         onChange={(event, newValue) => {
                           setFormData({
                             ...formData,
-                            companyId: newValue?._id || ''
+                            HotelId: newValue?._id || ''
                           });
                         }}
                         renderInput={(params) => (
                           <TextField
                             {...params}
-                            label="Company Name"
+                            label="Hotel Name"
                             variant="outlined"
-                            name="companyId"
+                            name="HotelId"
                             required
                             InputProps={{
                               ...params.InputProps,

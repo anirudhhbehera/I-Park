@@ -3,60 +3,39 @@ import EmailIcon from '@mui/icons-material/Email';
 import PersonIcon from '@mui/icons-material/Person';
 import GavelIcon from '@mui/icons-material/Gavel';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
+import { LocationOn } from '@mui/icons-material';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import LockIcon from '@mui/icons-material/Lock';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle'; // Specific icon for username
 import { Call } from '@mui/icons-material';
+
 export const COLUMNS = () => [
   {
     Header: 'Hotel Name',
-    accessor: 'companyName',
+    accessor: 'name',
     icon: <BusinessIcon />
   },
-  {
-    Header: 'Hotel Email',
-    accessor: 'companyEmail',
-    icon: <EmailIcon />
-  },
-  {
-    Header: 'Owner Name',
-    accessor: 'ownerName',
-    icon: <PersonIcon />
-  },
-  {
-    Header: 'Owner Email',
-    accessor: 'ownerEmail',
-    icon: <EmailIcon />
-  },
+
   {
     Header: 'Hotel Phone',
-    accessor: 'companyPhone',
+    accessor: 'phone',
     icon: <Call />
   },
-  {
-    Header: 'GST Number',
-    accessor: 'gstNo',
-    icon: <CreditCardIcon /> // Specific icon for GST
-  },
-  {
-    Header: 'PAN Number',
-    accessor: 'panNo',
-    icon: <GavelIcon /> // Specific icon for PAN
-  },
-  {
-    Header: 'Business Type',
-    accessor: 'businessType',
-    icon: <AccountBalanceIcon />
-  },
+
   {
     Header: 'Hotel Username',
-    accessor: 'username',
+    accessor: 'email',
     icon: <AccountCircleIcon /> // Unique icon for username
   },
   {
     Header: 'Hotel Password',
     accessor: 'password',
     icon: <LockIcon />
+  },
+  {
+    Header: 'Address',
+    accessor: 'address',
+    icon: <LocationOn />
   },
   {
     Header: 'Created At',

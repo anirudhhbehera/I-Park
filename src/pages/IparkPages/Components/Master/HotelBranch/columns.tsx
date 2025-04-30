@@ -6,35 +6,32 @@ import { FiGitBranch } from 'react-icons/fi';
 import EmailIcon from '@mui/icons-material/Email';
 import { PhoneAndroid } from '@mui/icons-material';
 import { Call } from '@mui/icons-material';
+
 export const COLUMNS = () => [
   {
     Header: 'Hotel Name',
-    accessor: 'companyName',
+    accessor: 'hotelname',
     icon: <BusinessIcon /> // Business icon represents the company
   },
   {
     Header: 'Hotel Branch Name',
-    accessor: 'branchName',
+    accessor: 'name',
     icon: <FiGitBranch /> // Domain icon represents a branch
   },
   {
     Header: 'Hotel Branch Phone',
-    accessor: 'branchPhone',
+    accessor: 'phone',
     icon: <Call /> // Domain icon represents a branch
   },
+
   {
-    Header: 'Hotel Branch Email',
-    accessor: 'branchEmail',
-    icon: <EmailIcon />
-  },
-  {
-    Header: 'Hotel Branch Location',
-    accessor: 'branchLocation',
+    Header: 'Hotel Branch Address',
+    accessor: 'address',
     icon: <LocationOnIcon /> // Location icon for branch location
   },
   {
     Header: 'User Name',
-    accessor: 'username',
+    accessor: 'email',
     icon: <AccountCircleIcon /> // AccountCircle icon for username
   },
   {
