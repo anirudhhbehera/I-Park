@@ -277,7 +277,7 @@ export default function HotelBranch() {
       console.log('FormData to be submitted:', updatedFormData);
 
       const response = await axios.post(
-        `${import.meta.env.VITE_SERVER_URL}/branch`,
+        `${import.meta.env.VITE_API_URL}/branch/add`,
         updatedFormData,
         {
           headers: {
@@ -317,9 +317,9 @@ export default function HotelBranch() {
     e.preventDefault();
     console.log(formData);
     try {
-      const token = Cookies.get('authToken');
+      // const token = Cookies.get('authToken');
       const response = await axios.put(
-        `${import.meta.env.VITE_SERVER_URL}/api/branch/${formData._id}`,
+        `${import.meta.env.VITE_API_URL}/branch/update/${formData._id}`,
         formData,
         {
           headers: {
@@ -390,7 +390,7 @@ export default function HotelBranch() {
 
                   const response = await axios({
                     method: 'DELETE',
-                    url: `${import.meta.env.VITE_API_URL}/branch/${item._id}`,
+                    url: `${import.meta.env.VITE_API_URL}/branch/delete/${item._id}`,
                     headers: {
                       Authorization: `Bearer ${token}`,
                       'Content-Type': 'application/json'
