@@ -35,7 +35,12 @@ const Valet = lazy(
     import('../../../I-Park/src/pages/IparkPages/Components/Master/Valet/Valet')
 );
 // ----------------------------------------------------------------------
-
+const HotelBranchGroup = lazy(
+  () =>
+    import(
+      '../../../I-Park/src/pages/IparkPages/Components/Master/HotelBranchGroup/HotelBranchGroup'
+    )
+);
 export default function AppRouter() {
   const dashboardRoutes = [
     {
@@ -58,6 +63,11 @@ export default function AppRouter() {
         {
           path: '/Hotel',
           element: <Hotel />
+          // index: true
+        },
+        {
+          path: '/HotelBranchGroup',
+          element: <HotelBranchGroup />
           // index: true
         },
         {
