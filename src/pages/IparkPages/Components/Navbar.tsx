@@ -9,6 +9,7 @@ import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import LogoutButton from './LogoutButton';
+import ReportDropdown from './ReportDropdown';
 export function Navbar() {
   const navigate = useNavigate();
 
@@ -53,7 +54,7 @@ export function Navbar() {
           </NavLink>
 
           <MasterDropdown />
-
+          <ReportDropdown />
           <NavLink
             to="#"
             className={({ isActive }) =>

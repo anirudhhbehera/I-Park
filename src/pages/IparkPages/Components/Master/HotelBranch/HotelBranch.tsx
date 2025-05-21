@@ -270,7 +270,8 @@ export default function HotelBranch() {
         // const role = decodedToken.role;
 
         if (role == 2) {
-          updatedFormData.hotelId = decodedToken.id; // Add hotelId from the token
+          // updatedFormData.hotelId = decodedToken.id; // Add hotelId from the token
+          updatedFormData.hotelId = user?.id;
         }
       }
 
@@ -519,13 +520,16 @@ export default function HotelBranch() {
           {/* Settings Dropdown */}
 
           {/* Add Button */}
-          <div
-            className="add-container d-flex align-items-center"
-            onClick={() => setAddModalOpen(true)}
-          >
-            <div className="add-icon">+</div>
-            <span className="add-text ms-2">ADD</span>
-          </div>
+          {role != 4 && (
+            <div
+              className="add-container d-flex align-items-center"
+              onClick={() => setAddModalOpen(true)}
+            >
+              <div className="add-icon">+</div>
+              <span className="add-text ms-2">ADD</span>
+            </div>
+          )}
+
           <CDropdown className="position-relative me-3">
             <CDropdownToggle
               color="secondary"
@@ -612,19 +616,21 @@ export default function HotelBranch() {
                   )}
                 </CTableHeaderCell>
               ))}
-              <CTableHeaderCell
-                className="text-center"
-                style={{
-                  padding: '5px 12px', // Reduced padding for top and bottom
-                  borderBottom: '1px solid #e0e0e0', // Light border under headers
-                  textAlign: 'center', // Center header text
-                  verticalAlign: 'middle',
-                  backgroundColor: 'black',
-                  color: 'white'
-                }}
-              >
-                Actions
-              </CTableHeaderCell>
+              {role != 4 && (
+                <CTableHeaderCell
+                  className="text-center"
+                  style={{
+                    padding: '5px 12px', // Reduced padding for top and bottom
+                    borderBottom: '1px solid #e0e0e0', // Light border under headers
+                    textAlign: 'center', // Center header text
+                    verticalAlign: 'middle',
+                    backgroundColor: 'black',
+                    color: 'white'
+                  }}
+                >
+                  Actions
+                </CTableHeaderCell>
+              )}
             </CTableRow>
           </CTableHead>
 
@@ -675,7 +681,7 @@ export default function HotelBranch() {
                         key={col.accessor}
                         className="text-center"
                         style={{
-                          padding: '0px 12px',
+                          padding: '10px 12px',
                           color: '#242424',
                           fontSize: '13px',
                           backgroundColor:
@@ -686,7 +692,7 @@ export default function HotelBranch() {
                       </CTableDataCell>
                     ))}
 
-                    <CTableDataCell
+                    {/* <CTableDataCell
                       className={`table-cell text-center ${index % 2 === 0 ? 'table-cell-even' : 'table-cell-odd'}`}
                     >
                       <IconButton
@@ -704,7 +710,28 @@ export default function HotelBranch() {
                       >
                         <AiFillDelete className="icon-button-icon" />
                       </IconButton>
-                    </CTableDataCell>
+                    </CTableDataCell> */}
+                    {role != 4 && (
+                      <CTableDataCell
+                        className={`table-cell text-center ${index % 2 === 0 ? 'table-cell-even' : 'table-cell-odd'}`}
+                      >
+                        <IconButton
+                          aria-label="edit"
+                          onClick={() => handleEditGroup(item)}
+                          className="icon-button icon-button-edit"
+                        >
+                          <RiEdit2Fill className="icon-button-icon" />
+                        </IconButton>
+
+                        <IconButton
+                          aria-label="delete"
+                          onClick={() => haqndleDeletesubmit(item)}
+                          className="icon-button icon-button-delete"
+                        >
+                          <AiFillDelete className="icon-button-icon" />
+                        </IconButton>
+                      </CTableDataCell>
+                    )}
                   </CTableRow>
                 ))
             ) : (
@@ -777,55 +804,6 @@ export default function HotelBranch() {
               >
                 {role == 1 ? (
                   <>
-                    {/* <FormControl
-                      variant="outlined"
-                      sx={{ marginBottom: '10px' }}
-                      fullWidth
-                    >
-                      <Autocomplete
-                        id="searchable-hotel-select"
-                        options={Array.isArray(HotelData) ? HotelData : []} // Ensure HotelData is an array
-                        getOptionLabel={(option) => option.companyName || ''} // Display company name
-                        value={
-                          Array.isArray(HotelData)
-                            ? HotelData.find(
-                             (company) => company._id == formData.hotelId
-                              )
-                            : null
-                        } // Safely find the selected company
-                        onChange={(event, newValue) => {
-                          setFormData({
-                            ...formData,
-                            hotelId: newValue?._id || ''
-                          });
-                        }}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            label="Company Name"
-                            variant="outlined"
-                            name="hotelId"
-                            required
-                            placeholder="Select Company" // Dynamic placeholder
-                            InputProps={{
-                              ...params.InputProps,
-                              startAdornment: (
-                                <InputAdornment position="start">
-                                  <BusinessIcon />
-                                </InputAdornment>
-                              )
-                            }}
-                            sx={{
-                              '& .MuiFormLabel-asterisk': {
-                                color: 'red',
-                                fontSize: '1.4rem'
-                                // fontWeight: "bold",
-                              }
-                            }}
-                          />
-                        )}
-                      />
-                    </FormControl> */}
                     <FormControl
                       variant="outlined"
                       sx={{ marginBottom: '10px' }}

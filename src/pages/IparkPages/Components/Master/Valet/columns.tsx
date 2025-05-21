@@ -1,7 +1,7 @@
 import BusinessIcon from '@mui/icons-material/Business';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import VpnKeyIcon from '@mui/icons-material/VpnKey'; // Icon for password
+import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import { FiGitBranch } from 'react-icons/fi';
 import EmailIcon from '@mui/icons-material/Email';
 import { PhoneAndroid } from '@mui/icons-material';
@@ -9,43 +9,42 @@ import { PhoneAndroid } from '@mui/icons-material';
 export const COLUMNS = () => [
   {
     Header: 'Valet Name',
-    accessor: 'salesmanName',
-    icon: <AccountCircleIcon /> // AccountCircle icon for salesman's name
+    accessor: 'name', // Changed from salesmanName to name
+    icon: <AccountCircleIcon />
   },
   {
     Header: 'Valet Email',
-    accessor: 'salesmanEmail',
-    icon: <EmailIcon /> // Email icon for salesman's email
+    accessor: 'email', // Changed from salesmanEmail to email
+    icon: <EmailIcon />
   },
   {
     Header: 'Valet Phone',
-    accessor: 'salesmanPhone',
-    icon: <PhoneAndroid /> // PhoneAndroid icon represents the phone
+    accessor: 'phone', // Assuming you may add this later in data
+    icon: <PhoneAndroid />
   },
   {
     Header: 'Username',
     accessor: 'username',
-    icon: <AccountCircleIcon /> // AccountCircle icon for username
+    icon: <AccountCircleIcon />
   },
   {
     Header: 'Password',
     accessor: 'password',
-    icon: <VpnKeyIcon /> // VpnKey icon for password
+    icon: <VpnKeyIcon />
   },
   {
     Header: 'Hotel Name',
-    accessor: 'companyName', // Nested accessor for company name
-    icon: <BusinessIcon /> // Business icon represents the company
+    accessor: 'HotelName', // To access nested hotel ID
+    icon: <BusinessIcon />
   },
   {
-    Header: 'Hotel Branch Name',
-    accessor: 'branchName', // Nested accessor for branch name
-    icon: <FiGitBranch /> // Branch icon represents a branch
+    Header: 'Branch Name',
+    accessor: 'BranchName', // To access nested branch ID
+    icon: <FiGitBranch />
   },
-
   {
     Header: 'Created At',
     accessor: 'createdAt',
-    icon: null // No icon for created at
+    icon: null
   }
 ];

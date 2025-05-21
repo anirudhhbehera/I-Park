@@ -54,7 +54,7 @@ import '../../../../../../src/app.css';
 import { COLUMNS } from './columns';
 import { StyledTablePagination } from '../../../Components/Reusablecode/TablePaginationStyles';
 // import { FaBriefcase   } from 'react-icons/fa';
-// import { FiGitBranch } from 'react-icons/fi';
+import { FiGitBranch } from 'react-icons/fi';
 import { FaCarSide } from 'react-icons/fa';
 
 import BusinessIcon from '@mui/icons-material/Business';
@@ -70,7 +70,8 @@ import myGif from '../../Reusablecode/loadergif.gif';
 import { HiOutlineDotsVertical } from 'react-icons/hi';
 import Slider from '@mui/material/Slider';
 import { styled } from '@mui/material/styles';
-const token = Cookies.get('token');
+import { useSelector } from 'react-redux';
+// const token = Cookies.get('token');
 const PrettoSlider = styled(Slider)({
   color: '#52af77',
   height: 8,
@@ -94,7 +95,7 @@ export default function Valet() {
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [formData, setFormData] = useState({});
-  // const [formData, setFormData] = useState({ companyId: '', branchId: '',supervisorId:'' })
+  // const [formData, setFormData] = useState({ hotelId: '', branchId: '',supervisorId:'' })
   const [branchError, setBranchError] = useState(false);
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState([]);
@@ -109,7 +110,7 @@ export default function Valet() {
   const [rowsPerPage, setRowsPerPage] = useState(25);
   const columns = COLUMNS();
   const [sortedData, setSortedData] = useState([]);
-  const [companyData, setCompanyData] = useState([]);
+  const [hotelData, sethotelData] = useState([]);
   const [BranchData, setBranchData] = useState([]);
   const [SupervisorData, setSupervisorData] = useState([]);
   const [supervisorId, setSupervisorId] = useState([]);
@@ -118,7 +119,10 @@ export default function Valet() {
   const [selectedRow, setSelectedRow] = useState(null);
   const [sortBy, setSortBy] = useState('');
   const [sortOrder, setSortOrder] = useState('asc');
-
+  const token = useSelector((state) => state.auth.token);
+  const user = useSelector((state) => state.auth.user);
+  // const hotelId=useSelector((state)=>state.auth.hotelId)
+  const role = user?.role;
   const handleSetSpeed = async () => {
     console.log(supervisorId, 'supervisorId');
     if (!supervisorId) return;
@@ -152,389 +156,16 @@ export default function Valet() {
     }
   };
 
-  const SpeedManagementToast = ({
-    t,
-    supervisorId,
-    initialSpeed,
-    handleClose
-  }) => {
-    const [speed, setSpeed] = useState(initialSpeed || '0');
-    const [isSubmitting, setIsSubmitting] = useState(false);
-
-    const handleSubmit = async () => {
-      setIsSubmitting(true);
-      try {
-        let response;
-
-        if (speed === '0') {
-          // If speed is 0, call DELETE API on clicking "Update"
-          response = await fetch(
-            `${import.meta.env.VITE_SERVER_URL}/api/setoverspeed/${supervisorId}`,
-            {
-              method: 'DELETE',
-              headers: { 'Content-Type': 'application/json' }
-            }
-          );
-        } else {
-          const speedNumber = Number(speed);
-          const url = initialSpeed
-            ? `${import.meta.env.VITE_SERVER_URL}/api/setoverspeed/${supervisorId}`
-            : `${import.meta.env.VITE_SERVER_URL}/api/setoverspeed`;
-
-          response = await fetch(url, {
-            method: initialSpeed ? 'PUT' : 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              supervisorId: supervisorId,
-              speedLimit: speedNumber
-            })
-          });
-        }
-
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.message || 'Operation failed');
-
-        toast.success(
-          speed === '0'
-            ? 'Speed limit removed successfully'
-            : 'Speed updated successfully'
-        );
-        handleClose();
-        toast.dismiss(t.id);
-
-        if (typeof refetchData === 'function') {
-          await refetchData();
-        }
-      } catch (error) {
-        toast.error(error.message || 'Failed to perform operation');
-      } finally {
-        setIsSubmitting(false);
-      }
-    };
-
-    return (
-      <div sx={{ padding: '1rem', maxWidth: '300px' }}>
-        <p>
-          Manage speed for salesman :
-          {initialSpeed && (
-            <span style={{ marginLeft: 10, fontSize: '0.9em' }}>
-              (Current: {initialSpeed} km/h)
-            </span>
-          )}
-        </p>
-
-        {/* Slider with live update */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            width: '100%'
-          }}
-        >
-          <span style={{ fontWeight: 'bold', width: '40px' }}>
-            {speed} km/h
-          </span>
-          {/* <input
-                type="range"
-                min="0"
-                max="200"
-                value={speed}
-                onChange={(e) => setSpeed(e.target.value)}
-                style={{ flex: 1, margin: "10px 0" }}
-                disabled={isSubmitting}
-              /> */}
-          <PrettoSlider
-            type="range"
-            min={0}
-            max={200}
-            value={Number(speed)} // Ensure slider gets a number
-            onChange={(e, newValue) => setSpeed(newValue.toString())}
-            valueLabelDisplay="auto"
-            disabled={isSubmitting}
-          />
-        </div>
-
-        <div
-          style={{
-            display: 'flex',
-            gap: '10px',
-            justifyContent: 'flex-end',
-            width: '300px'
-          }}
-        >
-          {initialSpeed ? (
-            speed === '0' ? (
-              // If initial speed exists and speed is 0, "Remove Limit" should DELETE
-              <button
-                onClick={async () => {
-                  setIsSubmitting(true);
-                  try {
-                    const response = await fetch(
-                      `${import.meta.env.VITE_SERVER_URL}/api/setoverspeed/${supervisorId}`,
-                      {
-                        method: 'DELETE',
-                        headers: { 'Content-Type': 'application/json' }
-                      }
-                    );
-                    const data = await response.json();
-                    if (!response.ok)
-                      throw new Error(data.message || 'Failed to remove limit');
-
-                    toast.success('Speed limit removed successfully');
-                    handleClose();
-                    toast.dismiss(t.id);
-                    if (typeof refetchData === 'function') await refetchData();
-                  } catch (error) {
-                    toast.error(error.message || 'Failed to remove limit');
-                  } finally {
-                    setIsSubmitting(false);
-                  }
-                }}
-                style={{
-                  background: '#ff4444',
-                  padding: '8px 12px',
-                  borderRadius: '4px',
-                  color: 'white',
-                  border: 'none'
-                }}
-                disabled={isSubmitting}
-              >
-                Remove Limit
-              </button>
-            ) : (
-              // If initial speed exists and speed is NOT 0, show both "Remove Limit" & "Update"
-              <>
-                <button
-                  onClick={async () => {
-                    setIsSubmitting(true);
-                    try {
-                      const response = await fetch(
-                        `${import.meta.env.VITE_SERVER_URL}/api/setoverspeed/${supervisorId}`,
-                        {
-                          method: 'DELETE',
-                          headers: { 'Content-Type': 'application/json' }
-                        }
-                      );
-                      const data = await response.json();
-                      if (!response.ok)
-                        throw new Error(
-                          data.message || 'Failed to remove limit'
-                        );
-
-                      toast.success('Speed limit removed successfully');
-                      handleClose();
-                      toast.dismiss(t.id);
-                      if (typeof refetchData === 'function')
-                        await refetchData();
-                    } catch (error) {
-                      toast.error(error.message || 'Failed to remove limit');
-                    } finally {
-                      setIsSubmitting(false);
-                    }
-                  }}
-                  style={{
-                    background: '#ff4444',
-                    padding: '8px 12px',
-                    borderRadius: '4px',
-                    color: 'white',
-                    border: 'none'
-                  }}
-                  disabled={isSubmitting}
-                >
-                  Remove Limit
-                </button>
-                <button
-                  onClick={async () => {
-                    setIsSubmitting(true);
-                    try {
-                      const speedNumber = Number(speed);
-                      const response = await fetch(
-                        `${import.meta.env.VITE_SERVER_URL}/api/setoverspeed/${supervisorId}`,
-                        {
-                          method: 'PUT',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({
-                            supervisorId: supervisorId,
-                            speedLimit: speedNumber
-                          })
-                        }
-                      );
-                      const data = await response.json();
-                      if (!response.ok)
-                        throw new Error(
-                          data.message || 'Failed to update speed'
-                        );
-
-                      toast.success('Speed updated successfully');
-                      handleClose();
-                      toast.dismiss(t.id);
-                      if (typeof refetchData === 'function')
-                        await refetchData();
-                    } catch (error) {
-                      toast.error(error.message || 'Failed to update speed');
-                    } finally {
-                      setIsSubmitting(false);
-                    }
-                  }}
-                  style={{
-                    background: '#4CAF50',
-                    padding: '8px 12px',
-                    borderRadius: '4px',
-                    color: 'white',
-                    border: 'none'
-                  }}
-                  disabled={isSubmitting}
-                >
-                  Update
-                </button>
-              </>
-            )
-          ) : (
-            // If no initial speed, show "Set Limit"
-            <button
-              onClick={async () => {
-                setIsSubmitting(true);
-                try {
-                  const speedNumber = Number(speed);
-                  const response = await fetch(
-                    `${import.meta.env.VITE_SERVER_URL}/api/setoverspeed`,
-                    {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({
-                        supervisorId: supervisorId,
-                        speedLimit: speedNumber
-                      })
-                    }
-                  );
-                  const data = await response.json();
-                  if (!response.ok)
-                    throw new Error(
-                      data.message || 'Failed to set speed limit'
-                    );
-
-                  toast.success('Speed limit set successfully');
-                  handleClose();
-                  toast.dismiss(t.id);
-                  if (typeof refetchData === 'function') await refetchData();
-                } catch (error) {
-                  toast.error(error.message || 'Failed to set speed limit');
-                } finally {
-                  setIsSubmitting(false);
-                }
-              }}
-              style={{
-                background: '#4CAF50',
-                padding: '8px 12px',
-                borderRadius: '4px',
-                color: 'white',
-                border: 'none'
-              }}
-              disabled={isSubmitting}
-            >
-              Set Limit
-            </button>
-          )}
-          <button
-            onClick={() => toast.dismiss(t.id)}
-            style={{
-              background: '#666',
-              padding: '8px 12px',
-              borderRadius: '4px',
-              color: 'white',
-              border: 'none'
-            }}
-          >
-            Cancel
-          </button>
-        </div>
-      </div>
-    );
-  };
-  const handleClick = (event, rowData) => {
-    setAnchorEl(event.currentTarget);
-    setSelectedRow(rowData);
-  };
+  // const handleClick = (event, rowData) => {
+  //   setAnchorEl(event.currentTarget);
+  //   setSelectedRow(rowData);
+  // };
 
   const handleClose = () => {
     setAnchorEl(null);
     setSelectedRow(null);
   };
 
-  const handleResetLogin = async () => {
-    if (!selectedRow) return;
-
-    // Display confirmation toast with the username
-    toast(
-      (t) => (
-        <div>
-          <p>
-            Are you sure you want to reset login for user:{' '}
-            <b>{selectedRow.username}</b>?
-          </p>
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'flex-end',
-              gap: '10px',
-              marginTop: '10px'
-            }}
-          >
-            <button
-              onClick={async () => {
-                toast.dismiss(t.id); // Dismiss the toast
-                try {
-                  const response = await fetch(
-                    `${import.meta.env.VITE_SERVER_URL}/api/logout`,
-                    {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ username: selectedRow.username })
-                    }
-                  );
-
-                  const data = await response.json();
-                  if (response.ok) {
-                    toast.success(
-                      `Reset Successful for ${selectedRow.username}`
-                    );
-                  } else {
-                    toast.error(`Reset failed: ${data.message}`);
-                  }
-                } catch (error) {
-                  toast.error('Error during Reset');
-                }
-                handleClose(); // Close the menu after reset
-              }}
-              style={{
-                background: '#4CAF50',
-                color: 'white',
-                padding: '5px 10px',
-                borderRadius: '5px',
-                border: 'none'
-              }}
-            >
-              Confirm
-            </button>
-            <button
-              onClick={() => toast.dismiss(t.id)}
-              style={{
-                background: '#f44336',
-                color: 'white',
-                padding: '5px 10px',
-                borderRadius: '5px',
-                border: 'none'
-              }}
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      ),
-      { duration: Infinity }
-    ); // Keep the toast open until the user acts
-  };
   const handleEditModalClose = () => {
     setFormData({});
     setEditModalOpen(false);
@@ -562,76 +193,44 @@ export default function Valet() {
     padding: '1rem',
     marginTop: '8px'
   };
-  const [role, setRole] = useState(null);
+  // const [role, setRole] = useState(null);
 
-  useEffect(() => {
-    const fetchRole = () => {
-      const token = Cookies.get('token');
-      if (token) {
-        const decodedToken = jwtDecode(token);
-        console.log(decodedToken);
+  // useEffect(() => {
+  //   const fetchRole = () => {
+  //     const token = Cookies.get('token');
+  //     if (token) {
+  //       const decodedToken = jwtDecode(token);
+  //       console.log(decodedToken);
 
-        setRole(decodedToken.role);
-        if (decodedToken.role === 4) {
-          setSupervisorId(decodedToken.id);
-        }
-      } else {
-        setRole(null);
-      }
-    };
+  //       setRole(decodedToken.role);
+  //       if (decodedToken.role === 4) {
+  //         setSupervisorId(decodedToken.id);
+  //       }
+  //     } else {
+  //       setRole(null);
+  //     }
+  //   };
 
-    fetchRole(); // Call the function to fetch role
-  }, []);
+  //   fetchRole(); // Call the function to fetch role
+  // }, []);
 
   const fetchData = async () => {
-    const accessToken = Cookies.get('token');
-    const url = `${import.meta.env.VITE_SERVER_URL}/api/salesman`;
+    const url = `${import.meta.env.VITE_API_URL}/valleyboy/get`;
 
     try {
       const response = await axios.get(url, {
-        headers: { Authorization: `Bearer ${accessToken}` }
+        headers: { Authorization: `Bearer ${token}` }
       });
 
-      // Ensure the response contains the salesmandata array
-      // if (response.data && response.data.salesmandata) {
-      //   const formattedData = response.data.salesmandata.map((item) => ({
-      //     ...item,
-      //     companyName: item.companyId?.companyName || null, // Extract companyName or default to null
-      //     companyId: item.companyId?._id || null,             // Extract companyId or default to null
-      //     branchName: item.branchId?.branchName || null,       // Extract branchName or default to null
-      //     branchId: item.branchId?._id || null,                // Extract branchId or default to null
-      //     supervisorName: item.supervisorId?.supervisorName || null, // Extract supervisorName or default to null
-      //     supervisorId: item.supervisorId?._id || null,        // Extract supervisorId or default to null
-      //     // Format the createdAt date if it exists
-      //     createdAt: item.createdAt ? formatDate(item.createdAt) : item.createdAt,
-      //   }));
-
-      //   // Filter the data based on the search query
-      //   const filteredData = formattedData.filter((item) =>
-      //     Object.values(item).some((value) =>
-      //       value?.toString().toLowerCase().includes(searchQuery.toLowerCase())
-      //     )
-      //   );
-
-      //   setData(filteredData);
-      //   setSortedData(filteredData);
-      //   setLoading(false);
-      // } else {
-      //   console.error('Salesman data is missing or incorrectly structured.');
-      //   setLoading(false);
-      // }
-      if (Array.isArray(response.data?.salesmandata)) {
-        const formattedData = response.data.salesmandata.map((item) => ({
+      if (Array.isArray(response.data)) {
+        const formattedData = response.data.map((item) => ({
           ...item,
-          companyName: item.companyId?.companyName || null,
-          companyId: item.companyId?._id || null,
-          branchName: item.branchId?.branchName || null,
+          hotelId: item.hotelId?._id || null,
           branchId: item.branchId?._id || null,
-          supervisorName: item.supervisorId?.supervisorName || null,
-          supervisorId: item.supervisorId?._id || null,
-          createdAt: item.createdAt
-            ? formatDate(item.createdAt)
-            : item.createdAt
+
+          HotelName: item.hotelId?.name || null,
+          BranchName: item.branchId?.name || null,
+          createdAt: item.createdAt ? formatDate(item.createdAt) : null
         }));
 
         const filteredData = formattedData.filter((item) =>
@@ -642,11 +241,9 @@ export default function Valet() {
 
         setData(filteredData);
         setSortedData(filteredData);
+        setLoading(false);
       } else {
-        console.error(
-          'salesmandata is not an array:',
-          response.data?.salesmandata
-        );
+        console.error('Expected array in response:', response.data);
       }
     } catch (error) {
       setLoading(false);
@@ -654,22 +251,22 @@ export default function Valet() {
     }
   };
 
-  const fetchCompany = async () => {
-    const accessToken = Cookies.get('token');
-    const url = `${import.meta.env.VITE_SERVER_URL}/api/company`;
+  const fetchhotel = async () => {
+    // const accessToken = Cookies.get('token');
+    const url = `${import.meta.env.VITE_API_URL}/hotel/get`;
 
     try {
       const response = await axios.get(url, {
         headers: {
-          Authorization: 'Bearer ' + accessToken
+          Authorization: 'Bearer ' + token
         }
       });
       console.log('my data response', response.data);
       if (response.data) {
-        // const companydata1 = response.data
-        setCompanyData(response.data);
+        // const hoteldata1 = response.data
+        sethotelData(response.data);
       }
-      console.log('companies are', companyData);
+      console.log('hotels are', hotelData);
     } catch (error) {
       setLoading(false);
       console.error('Error fetching data:', error);
@@ -677,55 +274,41 @@ export default function Valet() {
     }
   };
   const fetchBranch = async () => {
-    const accessToken = Cookies.get('token');
-    const url = `${import.meta.env.VITE_SERVER_URL}/api/branch`;
+    const url = `${import.meta.env.VITE_API_URL}/branch/get`;
 
     try {
       const response = await axios.get(url, {
         headers: {
-          Authorization: 'Bearer ' + accessToken
+          Authorization: 'Bearer ' + token
         }
       });
       console.log('my data response', response.data);
-      const branches = response.data.Branches || [];
+      // const branches = response.data.Branches || [];
+      // if (response.data) {
+      //   // const hoteldata1 = response.data
+      //   setBranchData(branches || []);
+      // }
       if (response.data) {
-        // const companydata1 = response.data
-        setBranchData(branches || []);
+        const formattedData = response.data.map((item) => ({
+          ...item,
+          hotelname: item.hotelId?.name || 'N/A', // Fallback if missing
+          createdAt: item.createdAt
+            ? formatDate(item.createdAt)
+            : item.createdAt
+        }));
+        setBranchData(formattedData);
+        console.log('Branches  are', BranchData);
       }
-      console.log('Branches  are', BranchData);
     } catch (error) {
       setLoading(false);
       console.error('Error fetching data:', error);
       throw error; // Re-throw the error for further handling if needed
     }
   };
-  const fetchsupervisor = async () => {
-    const accessToken = Cookies.get('token');
-    const url = `${import.meta.env.VITE_SERVER_URL}/api/supervisor`;
 
-    try {
-      const response = await axios.get(url, {
-        headers: {
-          Authorization: 'Bearer ' + accessToken
-        }
-      });
-      console.log('my data response', response.data);
-      const supervisor = response.data.supervisors || [];
-      if (response.data) {
-        // const companydata1 = response.data
-        setSupervisorData(supervisor || []);
-      }
-      console.log('supervisor  are', SupervisorData);
-    } catch (error) {
-      setLoading(false);
-      console.error('Error fetching data:', error);
-      throw error; // Re-throw the error for further handling if needed
-    }
-  };
   useEffect(() => {
-    fetchCompany();
+    fetchhotel();
     fetchBranch();
-    fetchsupervisor();
   }, []);
   // Format the date into DD-MM-YYYY format
   function formatDate(date) {
@@ -805,39 +388,30 @@ export default function Valet() {
 
   const handleAddSubmit = async (e) => {
     e.preventDefault();
+    console.log('ggg', role);
+
     try {
-      const accessToken = Cookies.get('token');
-      if (!accessToken) {
-        throw new Error('Token is missing');
+      if (role == 2) {
+        formData.hotelId = user?.id; // Use hotelId from the token
+      } else if (role == 3) {
+        formData.hotelId = user?.hotelId; // Use hotelId from the token
+        formData.branchId = user?.id; // Use branchId from the token
+        console.log(formData.hotelId);
+      } else if (role == 4) {
+        formData.hotelId = user?.hotelId; // Use hotelId from the token
       }
 
-      // Decode the token to get role and other details
-      const decodedToken = jwt_decode(accessToken);
-
-      // Determine the user's role and update formData accordingly
-      if (decodedToken.role === 2) {
-        formData.companyId = decodedToken.id; // Use companyId from the token
-      } else if (decodedToken.role === 3) {
-        formData.companyId = decodedToken.companyId; // Use companyId from the token
-        formData.branchId = decodedToken.id; // Use branchId from the token
-      } else if (decodedToken.role === 4) {
-        formData.supervisorId = decodedToken.id; // Use supervisorId from the token
-        formData.companyId = decodedToken.companyId; // Use companyId from the token
-        formData.branchId = decodedToken.branchId; // Use branchId from the token
-      }
-
-      // Perform the POST request
       const response = await axios.post(
-        `${import.meta.env.VITE_SERVER_URL}/api/salesman`,
+        `${import.meta.env.VITE_API_URL}/valleyboy/add`,
         formData,
         {
           headers: {
-            Authorization: `Bearer ${accessToken}`,
+            Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json'
           }
         }
       );
-
+      console.log('my data', formData);
       if (response.status === 201) {
         toast.success('Salesman is created successfully');
         fetchData(); // Refresh data
@@ -869,27 +443,23 @@ export default function Valet() {
     e.preventDefault();
     console.log(formData);
     try {
-      const { profileImage, ...filteredFormData } = formData;
-      const accessToken = Cookies.get('token');
       const response = await axios.put(
-        `${import.meta.env.VITE_SERVER_URL}/api/salesman/${formData._id}`,
-        filteredFormData,
+        `${import.meta.env.VITE_API_URL}/valleyboy/update/${formData._id}`,
+        formData,
         {
           headers: {
-            Authorization: `Bearer ${accessToken}`
+            Authorization: `Bearer ${token}`
           }
         }
       );
 
       if (response.status === 200) {
-        toast.success('Salesman is edited successfully');
+        toast.success('HotelBranchGroup is edited successfully');
         fetchData();
         setFormData({ name: '' });
         setEditModalOpen(false);
       }
     } catch (error) {
-      // toast.error('An error occured')
-      // throw error.response ? error.response.data : new Error('An error occurred')
       const errorMessage =
         error.response && error.response.data && error.response.data.message
           ? error.response.data.message
@@ -935,17 +505,17 @@ export default function Valet() {
                 toast.dismiss(t.id);
 
                 try {
-                  const accessToken = Cookies.get('token');
-                  if (!accessToken) {
-                    toast.error('Authentication token is missing.');
-                    return;
-                  }
+                  // const accessToken = Cookies.get('token');
+                  // if (!accessToken) {
+                  //   toast.error('Authentication token is missing.');
+                  //   return;
+                  // }
 
                   const response = await axios({
                     method: 'DELETE',
                     url: `${import.meta.env.VITE_SERVER_URL}/api/salesman/${item._id}`,
                     headers: {
-                      Authorization: `Bearer ${accessToken}`,
+                      Authorization: `Bearer ${token}`,
                       'Content-Type': 'application/json'
                     }
                   });
@@ -1003,8 +573,8 @@ export default function Valet() {
     data: filteredData,
     fileName: 'UserManage_data_report.pdf'
   });
-  const filteredBranches = formData.companyId
-    ? BranchData.filter((branch) => branch.companyId._id === formData.companyId)
+  const filteredBranches = formData.hotelId
+    ? BranchData.filter((branch) => branch.hotelId._id === formData.hotelId)
     : [];
 
   const handleSort = (accessor) => {
@@ -1128,26 +698,21 @@ export default function Valet() {
         />
       </div>
 
-      <TableContainer
-        component={Paper}
-        sx={{
-          height: 'auto',
-          overflowX: 'auto'
-        }}
-      >
+      <div style={{ maxHeight: '440px', overflowY: 'auto' }}>
         <CTable
           style={{
             fontFamily: 'Roboto, sans-serif',
             fontSize: '14px',
-            borderCollapse: 'collapse',
+            borderCollapse: 'seperate',
             width: '100%',
+            borderSpacing: 0,
             border: '1px solid #e0e0e0' // Light border
           }}
           bordered
           align="middle"
           className="mb-2"
           hover
-          responsive
+          // responsive
         >
           <CTableHead>
             <CTableRow>
@@ -1155,11 +720,14 @@ export default function Valet() {
                 className="text-center"
                 style={{
                   backgroundColor: 'black',
-                  padding: '5px 12px', // Reduced padding for top and bottom
-                  borderBottom: '1px solid #e0e0e0', // Light border under headers
-                  textAlign: 'center', // Center header text
+                  padding: '5px 12px',
+                  borderBottom: '1px solid #e0e0e0',
+                  textAlign: 'center',
                   verticalAlign: 'middle',
-                  color: 'white'
+                  color: 'white',
+                  position: 'sticky',
+                  top: 0,
+                  zIndex: 10
                 }}
               >
                 SN
@@ -1169,12 +737,15 @@ export default function Valet() {
                   key={col.accessor}
                   className="text-center"
                   style={{
-                    padding: '5px 12px', // Reduced padding for top and bottom
-                    borderBottom: '1px solid #e0e0e0', // Light border under headers
-                    textAlign: 'center', // Center header text
+                    padding: '5px 12px',
+                    borderBottom: '1px solid #e0e0e0',
+                    textAlign: 'center',
                     verticalAlign: 'middle',
                     backgroundColor: 'black',
-                    color: 'white'
+                    color: 'white',
+                    position: 'sticky',
+                    top: 0,
+                    zIndex: 10
                   }}
                   onClick={() => handleSort(col.accessor)}
                 >
@@ -1189,12 +760,15 @@ export default function Valet() {
               <CTableHeaderCell
                 className="text-center"
                 style={{
-                  padding: '5px 12px', // Reduced padding for top and bottom
-                  borderBottom: '1px solid #e0e0e0', // Light border under headers
-                  textAlign: 'center', // Center header text
+                  padding: '5px 12px',
+                  borderBottom: '1px solid #e0e0e0',
+                  textAlign: 'center',
                   verticalAlign: 'middle',
                   backgroundColor: 'black',
-                  color: 'white'
+                  color: 'white',
+                  position: 'sticky',
+                  top: 0,
+                  zIndex: 10
                 }}
               >
                 Actions
@@ -1278,29 +852,6 @@ export default function Valet() {
                       >
                         <AiFillDelete className="icon-button-icon" />
                       </IconButton>
-
-                      <IconButton
-                        aria-label="options"
-                        onClick={(e) => handleClick(e, item)}
-                        className="icon-button"
-                      >
-                        <HiOutlineDotsVertical />
-                      </IconButton>
-                      <Menu
-                        anchorEl={anchorEl}
-                        open={Boolean(anchorEl)}
-                        onClose={handleClose}
-                        sx={{
-                          '& .MuiPaper-root': {
-                            boxShadow: 'none', // Removes shadow
-                            border: '1px solid #ddd' // Optional: adds a subtle border
-                          }
-                        }}
-                      >
-                        <MenuItem onClick={handleResetLogin}>
-                          Reset Login
-                        </MenuItem>
-                      </Menu>
                     </CTableDataCell>
                   </CTableRow>
                 ))
@@ -1321,7 +872,7 @@ export default function Valet() {
             )}
           </CTableBody>
         </CTable>
-      </TableContainer>
+      </div>
 
       <StyledTablePagination>
         <TablePagination
@@ -1380,34 +931,34 @@ export default function Valet() {
                       fullWidth
                     >
                       <Autocomplete
-                        id="searchable-company-select"
-                        options={Array.isArray(companyData) ? companyData : []}
-                        getOptionLabel={(option) => option.companyName || ''}
-                        // value={companyData.find((company) => company._id == formData.companyId) || null}
+                        id="searchable-hotel-select"
+                        options={Array.isArray(hotelData) ? hotelData : []}
+                        getOptionLabel={(option) => option.name || ''}
+                        // value={hotelData.find((hotel) => hotel._id == formData.hotelId) || null}
                         value={
-                          Array.isArray(companyData)
-                            ? companyData.find(
-                                (company) => company._id == formData.companyId
+                          Array.isArray(hotelData)
+                            ? hotelData.find(
+                                (hotel) => hotel._id == formData.hotelId
                               )
                             : null
                         }
                         onChange={(event, newValue) => {
                           setFormData({
                             ...formData,
-                            companyId: newValue?._id || '',
-                            branchId: '', // Reset branch when company changes
-                            supervisorId: '' // Reset supervisor when company changes
+                            hotelId: newValue?._id || '',
+                            branchId: '', // Reset branch when hotel changes
+                            supervisorId: '' // Reset supervisor when hotel changes
                           });
                           setBranchError(false); // Clear branch error
                         }}
                         renderInput={(params) => (
                           <TextField
                             {...params}
-                            label="Company Name"
+                            label="hotel Name"
                             variant="outlined"
-                            name="companyId"
+                            name="hotelId"
                             required
-                            placeholder="Select Company"
+                            placeholder="Select hotel"
                             InputProps={{
                               ...params.InputProps,
                               startAdornment: (
@@ -1437,14 +988,14 @@ export default function Valet() {
                       <Autocomplete
                         id="searchable-branch-select"
                         options={filteredBranches}
-                        getOptionLabel={(option) => option.branchName || ''}
+                        getOptionLabel={(option) => option.name || ''}
                         value={
                           filteredBranches.find(
                             (branch) => branch._id == formData.branchId
                           ) || null
                         }
                         onChange={(event, newValue) => {
-                          if (!formData.companyId) {
+                          if (!formData.hotelId) {
                             setBranchError(true);
                           } else {
                             setFormData({
@@ -1464,13 +1015,13 @@ export default function Valet() {
                             required
                             error={branchError} // Show error state
                             helperText={
-                              branchError && formData.companyId
-                                ? 'Please select a company first'
+                              branchError && formData.hotelId
+                                ? 'Please select a hotel first'
                                 : ''
                             }
                             placeholder={
-                              !formData.companyId
-                                ? 'Select Company First'
+                              !formData.hotelId
+                                ? 'Select hotel First'
                                 : 'Select Branch'
                             }
                             InputProps={{
@@ -1490,73 +1041,7 @@ export default function Valet() {
                             }}
                           />
                         )}
-                        disabled={!formData.companyId} // Disable if no company is selected
-                      />
-                    </FormControl>
-
-                    <FormControl
-                      variant="outlined"
-                      sx={{ marginBottom: '10px' }}
-                      fullWidth
-                    >
-                      <Autocomplete
-                        id="searchable-supervisor-select"
-                        options={
-                          formData.companyId && formData.branchId
-                            ? SupervisorData.filter(
-                                (supervisor) =>
-                                  supervisor.companyId?._id ===
-                                    formData.companyId &&
-                                  supervisor.branchId?._id === formData.branchId
-                              )
-                            : []
-                        }
-                        getOptionLabel={(option) => option.supervisorName || ''}
-                        value={
-                          SupervisorData.find(
-                            (supervisor) =>
-                              supervisor._id === formData.supervisorId
-                          ) || null
-                        }
-                        onChange={(event, newValue) =>
-                          setFormData({
-                            ...formData,
-                            supervisorId: newValue?._id || ''
-                          })
-                        }
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            label="Supervisor"
-                            variant="outlined"
-                            name="supervisorId"
-                            required
-                            placeholder={
-                              !formData.companyId
-                                ? 'Select Company First'
-                                : !formData.branchId
-                                  ? 'Select Branch First'
-                                  : 'Select Supervisor'
-                            }
-                            disabled={!formData.companyId || !formData.branchId}
-                            InputProps={{
-                              ...params.InputProps,
-                              startAdornment: (
-                                <InputAdornment position="start">
-                                  <FiUser />
-                                </InputAdornment>
-                              )
-                            }}
-                            sx={{
-                              '& .MuiFormLabel-asterisk': {
-                                color: 'red',
-                                fontSize: '1.4rem'
-                                // fontWeight: "bold",
-                              }
-                            }}
-                          />
-                        )}
-                        disabled={!formData.branchId} // Disable if branch is not selected
+                        disabled={!formData.hotelId} // Disable if no hotel is selected
                       />
                     </FormControl>
                   </>
@@ -1570,7 +1055,7 @@ export default function Valet() {
                       <Autocomplete
                         id="searchable-branch-select"
                         options={Array.isArray(BranchData) ? BranchData : []}
-                        getOptionLabel={(option) => option.branchName || ''}
+                        getOptionLabel={(option) => option.name || ''}
                         value={
                           Array.isArray(BranchData)
                             ? BranchData.find(
@@ -1611,71 +1096,8 @@ export default function Valet() {
                         )}
                       />
                     </FormControl>
-
-                    <FormControl
-                      variant="outlined"
-                      sx={{ marginBottom: '10px' }}
-                      fullWidth
-                    >
-                      <Autocomplete
-                        id="searchable-supervisor-select"
-                        options={
-                          formData.branchId // Only show supervisors if branch is selected
-                            ? SupervisorData.filter(
-                                (supervisor) =>
-                                  supervisor.branchId?._id === formData.branchId
-                              )
-                            : []
-                        }
-                        getOptionLabel={(option) => option.supervisorName || ''}
-                        value={
-                          formData.supervisorId
-                            ? SupervisorData.find(
-                                (supervisor) =>
-                                  supervisor._id === formData.supervisorId
-                              )
-                            : null // Ensure it is null if supervisorId is empty
-                        }
-                        onChange={(event, newValue) =>
-                          setFormData({
-                            ...formData,
-                            supervisorId: newValue?._id || '' // Update supervisor
-                          })
-                        }
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            label="Supervisor"
-                            variant="outlined"
-                            name="supervisorId"
-                            required
-                            placeholder={
-                              !formData.branchId
-                                ? 'Select Branch First'
-                                : 'Select Supervisor'
-                            }
-                            disabled={!formData.branchId} // Disable when no branch is selected
-                            InputProps={{
-                              ...params.InputProps,
-                              startAdornment: (
-                                <InputAdornment position="start">
-                                  <FiGitBranch />
-                                </InputAdornment>
-                              )
-                            }}
-                            sx={{
-                              '& .MuiFormLabel-asterisk': {
-                                color: 'red',
-                                fontSize: '1.4rem'
-                                // fontWeight: "bold",
-                              }
-                            }}
-                          />
-                        )}
-                      />
-                    </FormControl>
                   </>
-                ) : role == 3 ? (
+                ) : role == 4 ? (
                   <>
                     <FormControl
                       variant="outlined"
@@ -1683,31 +1105,29 @@ export default function Valet() {
                       fullWidth
                     >
                       <Autocomplete
-                        id="searchable-supervisor-select"
-                        options={
-                          Array.isArray(SupervisorData) ? SupervisorData : []
-                        } // Ensure SupervisorData is an array
-                        getOptionLabel={(option) => option.supervisorName || ''} // Display supervisor name
+                        id="searchable-branch-select"
+                        options={Array.isArray(BranchData) ? BranchData : []}
+                        getOptionLabel={(option) => option.name || ''}
                         value={
-                          Array.isArray(SupervisorData)
-                            ? SupervisorData.find(
-                                (supervisor) =>
-                                  supervisor._id === formData.supervisorId
+                          Array.isArray(BranchData)
+                            ? BranchData.find(
+                                (branch) => branch._id == formData.branchId
                               )
                             : null
-                        } // Safely find the selected supervisor
+                        }
                         onChange={(event, newValue) =>
                           setFormData({
                             ...formData,
-                            supervisorId: newValue?._id || '' // Update the supervisorId in formData
+                            branchId: newValue?._id || '', // Update branch
+                            supervisorId: '' // Reset supervisor
                           })
                         }
                         renderInput={(params) => (
                           <TextField
                             {...params}
-                            label="Supervisor"
+                            label="Branch Name"
                             variant="outlined"
-                            name="supervisorId"
+                            name="branchId"
                             required
                             InputProps={{
                               ...params.InputProps,
@@ -1731,7 +1151,7 @@ export default function Valet() {
                   </>
                 ) : null}
                 {COLUMNS()
-                  .slice(0, -4)
+                  .slice(0, -3)
                   .map((column) => (
                     <TextField
                       key={column.accessor}
@@ -1814,32 +1234,32 @@ export default function Valet() {
                       fullWidth
                     >
                       <Autocomplete
-                        id="searchable-company-select"
-                        options={Array.isArray(companyData) ? companyData : []}
-                        getOptionLabel={(option) => option.companyName || ''}
-                        // value={companyData.find((company) => company._id == formData.companyId) || null}
+                        id="searchable-hotel-select"
+                        options={Array.isArray(hotelData) ? hotelData : []}
+                        getOptionLabel={(option) => option.name || ''}
+                        // value={hotelData.find((hotel) => hotel._id == formData.hotelId) || null}
                         value={
-                          Array.isArray(companyData)
-                            ? companyData.find(
-                                (company) => company._id == formData.companyId
+                          Array.isArray(hotelData)
+                            ? hotelData.find(
+                                (hotel) => hotel._id == formData.hotelId
                               )
                             : null
                         }
                         onChange={(event, newValue) => {
                           setFormData({
                             ...formData,
-                            companyId: newValue?._id || '',
-                            branchId: '', // Reset branch when company changes
-                            supervisorId: '' // Reset supervisor when company changes
+                            hotelId: newValue?._id || '',
+                            branchId: '', // Reset branch when hotel changes
+                            supervisorId: '' // Reset supervisor when hotel changes
                           });
                           setBranchError(false); // Clear branch error
                         }}
                         renderInput={(params) => (
                           <TextField
                             {...params}
-                            label="Company Name"
+                            label="hotel Name"
                             variant="outlined"
-                            name="companyId"
+                            name="hotelId"
                             required
                             InputProps={{
                               ...params.InputProps,
@@ -1870,14 +1290,14 @@ export default function Valet() {
                       <Autocomplete
                         id="searchable-branch-select"
                         options={filteredBranches}
-                        getOptionLabel={(option) => option.branchName || ''}
+                        getOptionLabel={(option) => option.name || ''}
                         value={
                           filteredBranches.find(
                             (branch) => branch._id == formData.branchId
                           ) || null
                         }
                         onChange={(event, newValue) => {
-                          if (!formData.companyId) {
+                          if (!formData.hotelId) {
                             setBranchError(true);
                           } else {
                             setFormData({
@@ -1897,13 +1317,13 @@ export default function Valet() {
                             error={branchError} // Show error state
                             required
                             helperText={
-                              branchError && formData.companyId
-                                ? 'Please select a company first'
+                              branchError && formData.hotelId
+                                ? 'Please select a hotel first'
                                 : ''
                             }
                             placeholder={
-                              !formData.companyId
-                                ? 'Select Company First'
+                              !formData.hotelId
+                                ? 'Select hotel First'
                                 : 'Select Branch'
                             }
                             InputProps={{
@@ -1923,146 +1343,12 @@ export default function Valet() {
                             }}
                           />
                         )}
-                        disabled={!formData.companyId} // Disable if no company is selected
-                      />
-                    </FormControl>
-
-                    <FormControl
-                      variant="outlined"
-                      sx={{ marginBottom: '10px' }}
-                      fullWidth
-                    >
-                      <Autocomplete
-                        id="searchable-supervisor-select"
-                        options={
-                          formData.companyId && formData.branchId
-                            ? SupervisorData.filter(
-                                (supervisor) =>
-                                  supervisor.companyId?._id ===
-                                    formData.companyId &&
-                                  supervisor.branchId?._id === formData.branchId
-                              )
-                            : []
-                        }
-                        getOptionLabel={(option) => option.supervisorName || ''}
-                        value={
-                          SupervisorData.find(
-                            (supervisor) =>
-                              supervisor._id === formData.supervisorId
-                          ) || null
-                        }
-                        onChange={(event, newValue) =>
-                          setFormData({
-                            ...formData,
-                            supervisorId: newValue?._id || ''
-                          })
-                        }
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            label="Supervisor"
-                            variant="outlined"
-                            name="supervisorId"
-                            required
-                            placeholder={
-                              !formData.companyId
-                                ? 'Select Company First'
-                                : !formData.branchId
-                                  ? 'Select Branch First'
-                                  : 'Select Supervisor'
-                            }
-                            disabled={!formData.companyId || !formData.branchId}
-                            InputProps={{
-                              ...params.InputProps,
-                              startAdornment: (
-                                <InputAdornment position="start">
-                                  <FiUser />
-                                </InputAdornment>
-                              )
-                            }}
-                            sx={{
-                              '& .MuiFormLabel-asterisk': {
-                                color: 'red',
-                                fontSize: '1.4rem'
-                                // fontWeight: "bold",
-                              }
-                            }}
-                          />
-                        )}
-                        disabled={!formData.branchId} // Disable if branch is not selected
+                        disabled={!formData.hotelId} // Disable if no hotel is selected
                       />
                     </FormControl>
                   </>
-                ) : role == 2 ? (
+                ) : role == 2 || role == 4 ? (
                   <>
-                    {/* <FormControl variant="outlined" sx={{ marginBottom: '10px' }} fullWidth>
-                <Autocomplete
-                  id="searchable-branch-select"
-                  options={Array.isArray(BranchData) ? BranchData : []}
-                  getOptionLabel={(option) => option.branchName || ''}
-                  value={
-                    Array.isArray(BranchData)
-                      ? BranchData.find((branch) => branch._id == formData.branchId)
-                      : null
-                  }
-                  onChange={(event, newValue) =>
-                    setFormData({
-                      ...formData,
-                      branchId: newValue?._id || '',
-                    })
-                  }
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Branch Name"
-                      variant="outlined"
-                      name="branchId"
-                      InputProps={{
-                        ...params.InputProps,
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <FiGitBranch />
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                  )}
-                />
-              </FormControl>
-              <FormControl variant="outlined" sx={{ marginBottom: '10px' }} fullWidth>
-  <Autocomplete
-    id="searchable-supervisor-select"
-    options={Array.isArray(SupervisorData) ? SupervisorData : []} // Ensure SupervisorData is an array
-    getOptionLabel={(option) => option.supervisorName || ''} // Display supervisor name
-    value={
-      Array.isArray(SupervisorData)
-        ? SupervisorData.find((supervisor) => supervisor._id === formData.supervisorId)
-        : null
-    } // Safely find the selected supervisor
-    onChange={(event, newValue) =>
-      setFormData({
-        ...formData,
-        supervisorId: newValue?._id || '', // Update the supervisorId in formData
-      })
-    }
-    renderInput={(params) => (
-      <TextField
-        {...params}
-        label="Supervisor"
-        variant="outlined"
-        name="supervisorId"
-        InputProps={{
-          ...params.InputProps,
-          startAdornment: (
-            <InputAdornment position="start">
-              <FiGitBranch />
-            </InputAdornment>
-          ),
-        }}
-      />
-    )}
-  />
-</FormControl> */}
                     <FormControl
                       variant="outlined"
                       sx={{ marginBottom: '10px' }}
@@ -2071,7 +1357,7 @@ export default function Valet() {
                       <Autocomplete
                         id="searchable-branch-select"
                         options={Array.isArray(BranchData) ? BranchData : []}
-                        getOptionLabel={(option) => option.branchName || ''}
+                        getOptionLabel={(option) => option.name || ''}
                         value={
                           Array.isArray(BranchData)
                             ? BranchData.find(
@@ -2082,8 +1368,7 @@ export default function Valet() {
                         onChange={(event, newValue) =>
                           setFormData({
                             ...formData,
-                            branchId: newValue?._id || '',
-                            supervisorId: '' // Reset supervisor when branch changes
+                            branchId: newValue?._id || ''
                           })
                         }
                         renderInput={(params) => (
@@ -2092,123 +1377,6 @@ export default function Valet() {
                             label="Branch Name"
                             variant="outlined"
                             name="branchId"
-                            required
-                            InputProps={{
-                              ...params.InputProps,
-                              startAdornment: (
-                                <InputAdornment position="start">
-                                  <FiGitBranch />
-                                </InputAdornment>
-                              )
-                            }}
-                            sx={{
-                              '& .MuiFormLabel-asterisk': {
-                                color: 'red',
-                                fontSize: '1.4rem'
-                                // fontWeight: "bold",
-                              }
-                            }}
-                          />
-                        )}
-                      />
-                    </FormControl>
-
-                    <FormControl
-                      variant="outlined"
-                      sx={{ marginBottom: '10px' }}
-                      fullWidth
-                    >
-                      <Autocomplete
-                        id="searchable-supervisor-select"
-                        options={
-                          formData.branchId // Only filter if branch is selected
-                            ? SupervisorData.filter(
-                                (supervisor) =>
-                                  supervisor.branchId?._id === formData.branchId
-                              )
-                            : []
-                        }
-                        getOptionLabel={(option) => option.supervisorName || ''}
-                        value={
-                          Array.isArray(SupervisorData)
-                            ? SupervisorData.find(
-                                (supervisor) =>
-                                  supervisor._id === formData.supervisorId
-                              )
-                            : null
-                        }
-                        onChange={(event, newValue) =>
-                          setFormData({
-                            ...formData,
-                            supervisorId: newValue?._id || ''
-                          })
-                        }
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            label="Supervisor"
-                            variant="outlined"
-                            name="supervisorId"
-                            required
-                            placeholder={
-                              !formData.branchId
-                                ? 'Select Branch First'
-                                : 'Select Supervisor'
-                            }
-                            disabled={!formData.branchId} // Disable when branch is not selected
-                            InputProps={{
-                              ...params.InputProps,
-                              startAdornment: (
-                                <InputAdornment position="start">
-                                  <FiGitBranch />
-                                </InputAdornment>
-                              )
-                            }}
-                            sx={{
-                              '& .MuiFormLabel-asterisk': {
-                                color: 'red',
-                                fontSize: '1.4rem'
-                                // fontWeight: "bold",
-                              }
-                            }}
-                          />
-                        )}
-                      />
-                    </FormControl>
-                  </>
-                ) : role == 3 ? (
-                  <>
-                    <FormControl
-                      variant="outlined"
-                      sx={{ marginBottom: '10px' }}
-                      fullWidth
-                    >
-                      <Autocomplete
-                        id="searchable-supervisor-select"
-                        options={
-                          Array.isArray(SupervisorData) ? SupervisorData : []
-                        } // Ensure SupervisorData is an array
-                        getOptionLabel={(option) => option.supervisorName || ''} // Display supervisor name
-                        value={
-                          Array.isArray(SupervisorData)
-                            ? SupervisorData.find(
-                                (supervisor) =>
-                                  supervisor._id === formData.supervisorId
-                              )
-                            : null
-                        } // Safely find the selected supervisor
-                        onChange={(event, newValue) =>
-                          setFormData({
-                            ...formData,
-                            supervisorId: newValue?._id || '' // Update the supervisorId in formData
-                          })
-                        }
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            label="Supervisor"
-                            variant="outlined"
-                            name="supervisorId"
                             required
                             InputProps={{
                               ...params.InputProps,
@@ -2233,7 +1401,7 @@ export default function Valet() {
                 ) : null}
 
                 {COLUMNS()
-                  .slice(0, -4)
+                  .slice(0, -3)
                   .map((column) => (
                     <TextField
                       key={column.accessor}

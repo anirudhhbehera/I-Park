@@ -30,7 +30,8 @@ if (initialToken) {
       initialUser = {
         id: decoded.id,
         email: decoded.email,
-        role: decoded.role
+        role: decoded.role,
+        hotelId: decoded?.hotelId?._id || null
       };
     }
   } catch (e) {
@@ -55,7 +56,8 @@ const authSlice = createSlice({
         state.user = {
           id: decoded.id,
           email: decoded.email,
-          role: decoded.role
+          role: decoded.role,
+          hotelId: decoded?.hotelId?._id || null
         };
       } catch {
         state.user = null;

@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-// REMOVE this line unless you're using <Hotel /> directly in this file
-import Hotel from './Master/Hotel/Hotel.tsx';
-import HotelBranch from './Master/HotelBranch/HotelBranch.tsx';
+// REMOVE this line unless you're using <DayWiseVehicle /> directly in this file
+import DayWiseVehicle from './Master/DayWiseVehicle/DayWiseVehicle.tsx';
+import DayWiseVehicleBranch from './Master/DayWiseVehicleBranch/DayWiseVehicleBranch.tsx';
 
 import { useLocation } from 'react-router-dom';
 import { useSelector, UseSelector } from 'react-redux';
@@ -18,8 +18,8 @@ const MasterDropdown = () => {
   const role = useSelector((state) => state.auth.user.role);
   console.log('my role is ', role);
   const isMasterActive =
-    Location.pathname.startsWith('/Hotel') ||
-    Location.pathname.startsWith('/HotelBranch') ||
+    Location.pathname.startsWith('/DayWiseVehicle') ||
+    Location.pathname.startsWith('/DayWiseVehicleBranch') ||
     Location.pathname.startsWith('/branchgroup') ||
     Location.pathname.startsWith('/Valet');
   const toggleDropdown = () => setOpen(!open);
@@ -45,7 +45,7 @@ const MasterDropdown = () => {
         onClick={toggleDropdown}
         className={`px-4 py-2 font-medium text-[#111111] focus:outline-none ${isMasterActive ? 'underline decoration-2 underline-offset-4' : 'no-underline'}`}
       >
-        Master
+        Report
       </button>
 
       {open && (
@@ -54,84 +54,52 @@ const MasterDropdown = () => {
             {role == 1 ? (
               <>
                 <Link
-                  to="/Hotel"
+                  to="/DayWiseVehicle"
                   className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   onClick={() => setOpen(false)}
                 >
-                  Hotel
+                  Day Wise Vehicle Report
                 </Link>
                 <Link
-                  to="/HotelBranch"
+                  to="/DayWiseVehicleBranch"
                   className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   onClick={() => setOpen(false)}
                 >
-                  Branch
-                </Link>
-                <Link
-                  to="/HotelBranchGroup"
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  onClick={() => setOpen(false)}
-                >
-                  Branch Group
-                </Link>
-                <Link
-                  to="/Valet"
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  onClick={() => setOpen(false)}
-                >
-                  Valet
+                  New Guest
                 </Link>
               </>
             ) : role == 2 ? (
               <>
                 <Link
-                  to="/HotelBranch"
+                  to="/DayWiseVehicle"
                   className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   onClick={() => setOpen(false)}
                 >
-                  Branch
+                  Day Wise Vehicle Report
                 </Link>
                 <Link
-                  to="/HotelBranchGroup"
+                  to="/DayWiseVehicleBranch"
                   className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   onClick={() => setOpen(false)}
                 >
-                  Branch Group
-                </Link>
-                <Link
-                  to="/Valet"
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  onClick={() => setOpen(false)}
-                >
-                  Valet
-                </Link>
-              </>
-            ) : role == 4 ? (
-              <>
-                <Link
-                  to="/HotelBranch"
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  onClick={() => setOpen(false)}
-                >
-                  Branch
-                </Link>
-
-                <Link
-                  to="/Valet"
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  onClick={() => setOpen(false)}
-                >
-                  Valet
+                  New Guest
                 </Link>
               </>
             ) : (
               <>
                 <Link
-                  to="/Valet"
+                  to="/DayWiseVehicle"
                   className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   onClick={() => setOpen(false)}
                 >
-                  Valet
+                  Day Wise Vehicle Report
+                </Link>
+                <Link
+                  to="/DayWiseVehicleBranch"
+                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  onClick={() => setOpen(false)}
+                >
+                  New Guest
                 </Link>
               </>
             )}

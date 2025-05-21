@@ -323,11 +323,31 @@ export default function HotelBranchGroup() {
     }
   };
 
+  // const handleEditGroup = async (item) => {
+  //   console.log(item);
+  //   setEditModalOpen(true);
+  //   setFormData({ ...item });
+  //   console.log('this is before edit', formData);
+  // };
   const handleEditGroup = async (item) => {
     console.log(item);
+
+    // Map assignedBranchNames (branch names) → IDs
+    const assignedIds = Branches.filter((branch) =>
+      item.assignedBranchNames.includes(branch.name)
+    ).map((branch) => branch._id);
+
+    setFormData({
+      ...item,
+      assignedBranchsId: assignedIds // ✅ add assigned IDs
+    });
+
     setEditModalOpen(true);
-    setFormData({ ...item });
-    console.log('this is before edit', formData);
+
+    console.log('this is before edit', {
+      ...item,
+      assignedBranchsId: assignedIds
+    });
   };
 
   const haqndleDeletesubmit = async (item) => {

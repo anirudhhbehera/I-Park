@@ -41,6 +41,13 @@ const HotelBranchGroup = lazy(
       '../../../I-Park/src/pages/IparkPages/Components/Master/HotelBranchGroup/HotelBranchGroup'
     )
 );
+
+const DayWiseVehicle = lazy(
+  () =>
+    import(
+      '../../../I-Park/src/pages/IparkPages/Components/Report/DayWiseVehicle/DayWiseVehicle'
+    )
+);
 export default function AppRouter() {
   const dashboardRoutes = [
     {
@@ -81,6 +88,11 @@ export default function AppRouter() {
           // index: true
         },
         {
+          path: '/Valet',
+          element: <Valet />
+          // index: true
+        },
+        {
           // path: 'IparkDashboard',
           element: <IparkDashboard />,
           index: true
@@ -96,6 +108,11 @@ export default function AppRouter() {
         {
           path: 'form',
           element: <FormPage />
+        },
+        {
+          path: '/DayWiseVehicle',
+          element: <DayWiseVehicle />
+          // index: true
         }
       ]
     }

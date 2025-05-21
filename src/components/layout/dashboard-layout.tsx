@@ -4,7 +4,7 @@ import Header from '../shared/header';
 import MobileSidebar from '../shared/mobile-sidebar';
 import { MenuIcon } from 'lucide-react';
 import { Navbar } from '@/pages/IparkPages/Components/Navbar';
-import  { Footer } from '@/pages/IparkPages/Components/Footer';
+import { Footer } from '@/pages/IparkPages/Components/Footer';
 
 export default function DashboardLayout({
   children
@@ -30,14 +30,13 @@ export default function DashboardLayout({
             <MenuIcon className="h-6 w-6" aria-hidden="true" />
           </button>
           <Header />
-          
         </div>
-      <Navbar />
+        <Navbar />
 
         <main className="relative mx-2 my-3 mr-2 flex-1 overflow-hidden rounded-xl  bg-background focus:outline-none md:mx-0 md:my-4 md:mr-4 ">
           {children}
         </main>
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </div>
   );

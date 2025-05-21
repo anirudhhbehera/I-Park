@@ -277,11 +277,11 @@ function DonutChart() {
   </main>
 
   {/* Footer */}
-  <footer className="mt-8 flex justify-between border-t border-gray-200 px-8 py-4 text-sm text-gray-500">
+  {/* <footer className="mt-8 flex justify-between border-t border-gray-200 px-8 py-4 text-sm text-gray-500">
     <div className="flex gap-4">
       <Link to="#">Terms & Conditions</Link>
       <Link to="#">Privacy Policy</Link>
     </div>
     <div>© 2025 I-PARK. All rights reserved.</div>
-  </footer>
+  </footer> */}
 </div>;
