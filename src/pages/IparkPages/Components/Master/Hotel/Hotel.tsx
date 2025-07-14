@@ -428,6 +428,18 @@ export default function Hotel() {
       setSortedData(filteredData);
     }
   }, [filteredData, sortBy, sortOrder]);
+
+  const [maxH, setMaxH] = useState('auto');
+
+  useEffect(() => {
+    function updateHeight() {
+      const bodyH = document.body.clientHeight;
+      setMaxH(`${bodyH * 0.68}px`); // 100% − 30% = 70%
+    }
+    window.addEventListener('resize', updateHeight);
+    updateHeight();
+    return () => window.removeEventListener('resize', updateHeight);
+  }, []);
   return (
     <div className="d-flex flex-column mx-md-3 mt-3 h-auto">
       <Toaster position="top-center" reverseOrder={false} />
@@ -498,26 +510,21 @@ export default function Hotel() {
         </div>
       </div>
 
-      <TableContainer
-        component={Paper}
-        sx={{
-          height: 'auto',
-          overflowX: 'auto'
-        }}
-      >
+      <div style={{ maxHeight: maxH, overflowY: 'auto' }}>
         <CTable
           style={{
             fontFamily: 'Roboto, sans-serif',
             fontSize: '14px',
-            borderCollapse: 'collapse',
+            borderCollapse: 'seperate',
             width: '100%',
+            borderSpacing: 0,
             border: '1px solid #e0e0e0' // Light border
           }}
           bordered
           align="middle"
           className="mb-2"
           hover
-          responsive
+          // responsive
         >
           <CTableHead>
             <CTableRow>
@@ -529,7 +536,10 @@ export default function Hotel() {
                   borderBottom: '1px solid #e0e0e0', // Light border under headers
                   textAlign: 'center', // Center header text
                   verticalAlign: 'middle',
-                  color: 'white'
+                  color: 'white',
+                  position: 'sticky',
+                  top: 0,
+                  zIndex: 10
                 }}
               >
                 SN
@@ -544,7 +554,10 @@ export default function Hotel() {
                     textAlign: 'center', // Center header text
                     verticalAlign: 'middle',
                     backgroundColor: 'black',
-                    color: 'white'
+                    color: 'white',
+                    position: 'sticky',
+                    top: 0,
+                    zIndex: 10
                   }}
                   onClick={() => handleSort(col.accessor)}
                 >
@@ -564,7 +577,10 @@ export default function Hotel() {
                   textAlign: 'center', // Center header text
                   verticalAlign: 'middle',
                   backgroundColor: 'black',
-                  color: 'white'
+                  color: 'white',
+                  position: 'sticky',
+                  top: 0,
+                  zIndex: 10
                 }}
               >
                 Actions
@@ -689,8 +705,8 @@ export default function Hotel() {
             )}
           </CTableBody>
         </CTable>
-      </TableContainer>
-
+        {/* </TableContainer> */}
+      </div>
       <StyledTablePagination>
         <TablePagination
           rowsPerPageOptions={[

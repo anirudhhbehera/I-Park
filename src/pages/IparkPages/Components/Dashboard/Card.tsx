@@ -5,11 +5,13 @@ import FetchdataForCards from './FetchdataForCards';
 export default function Card() {
   const [hotelcount, sethotelcount] = useState(0);
   const [branchcount, setbranchcount] = useState(0);
+  const [velleyboycount, setvalleyboycount] = useState(0);
   return (
     <div>
       <FetchdataForCards
         sethotelcount={sethotelcount}
         setbranchcount={setbranchcount}
+        setvalleyboycount={setvalleyboycount}
       />
       <div className="mb-8 grid grid-cols-4 gap-20 px-6">
         <Link to="/hotel" className="no-underline">
@@ -33,7 +35,7 @@ export default function Card() {
         <Link to="/Valet" className="no-underline">
           <IndividualCard
             title="Total Valet"
-            value="256"
+            value={velleyboycount}
             percentage="+15.03%"
             bgColor="bg-gradient-to-b from-neutral-900 to-gray-600"
             textColor="text-white"

@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, UseSelector } from 'react-redux';
 import axios from 'axios';
-export default function FetchdataForCards({ sethotelcount, setbranchcount }) {
+export default function FetchdataForCards({
+  sethotelcount,
+  setbranchcount,
+  setvalleyboycount
+}) {
   const token = useSelector((state) => state.auth.token);
   const user = useSelector((state) => state.auth.user);
   // const [hotelcount,sethotelcount]=useState(0);
@@ -40,9 +44,25 @@ export default function FetchdataForCards({ sethotelcount, setbranchcount }) {
       console.log('error while fetching branch count', error);
     }
   };
+  const fetchValleyboy = async () => {
+    const url = `${import.meta.env.VITE_API_URL}/valleyboy/get`;
+
+    try {
+      const response = await axios.get(url, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (Array.isArray(response.data)) {
+        setvalleyboycount(response.data.length);
+      }
+    } catch (error) {
+      console.log('error while fetching valleyboy count', error);
+    }
+  };
   useEffect(() => {
     fetchHotel();
     fetchBranch();
+    fetchValleyboy();
   }, []);
   return null;
 }

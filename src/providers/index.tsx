@@ -102,7 +102,7 @@ export default function AppProvider({
               {' '}
               {/* Wrap with Redux Provider */}
               <QueryClientProvider client={queryClient}>
-                <ReactQueryDevtools />
+                {/* <ReactQueryDevtools /> */}
                 <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
                   <SidebarProvider>{children}</SidebarProvider>
                 </ThemeProvider>

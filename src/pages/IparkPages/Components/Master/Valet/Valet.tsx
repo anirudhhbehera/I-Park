@@ -71,6 +71,7 @@ import { HiOutlineDotsVertical } from 'react-icons/hi';
 import Slider from '@mui/material/Slider';
 import { styled } from '@mui/material/styles';
 import { useSelector } from 'react-redux';
+import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai';
 // const token = Cookies.get('token');
 const PrettoSlider = styled(Slider)({
   color: '#52af77',
@@ -95,7 +96,7 @@ export default function Valet() {
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [formData, setFormData] = useState({});
-  // const [formData, setFormData] = useState({ hotelId: '', branchId: '',supervisorId:'' })
+  // const [formData, setFormData] = useState({ hotelId: '', branchId: '',valleyboyId:'' })
   const [branchError, setBranchError] = useState(false);
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState([]);
@@ -112,8 +113,8 @@ export default function Valet() {
   const [sortedData, setSortedData] = useState([]);
   const [hotelData, sethotelData] = useState([]);
   const [BranchData, setBranchData] = useState([]);
-  const [SupervisorData, setSupervisorData] = useState([]);
-  const [supervisorId, setSupervisorId] = useState([]);
+  const [valleyboyData, setvalleyboyData] = useState([]);
+  const [valleyboyId, setvalleyboyId] = useState([]);
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedRow, setSelectedRow] = useState(null);
@@ -123,14 +124,21 @@ export default function Valet() {
   const user = useSelector((state) => state.auth.user);
   // const hotelId=useSelector((state)=>state.auth.hotelId)
   const role = user?.role;
+  const [visiblePassword, setvisiblePassword] = useState({});
+  const togglePasswordVisibility = (index) => {
+    setvisiblePassword((prev) => ({
+      ...prev,
+      [index]: !prev[index]
+    }));
+  };
   const handleSetSpeed = async () => {
-    console.log(supervisorId, 'supervisorId');
-    if (!supervisorId) return;
+    console.log(valleyboyId, 'valleyboyId');
+    if (!valleyboyId) return;
 
     try {
       // First, call the GET API to check existing speed
       const getResponse = await fetch(
-        `${import.meta.env.VITE_SERVER_URL}/api/setoverspeed/${supervisorId}`
+        `${import.meta.env.VITE_SERVER_URL}/api/setoverspeed/${valleyboyId}`
       );
       const getData = await getResponse.json();
 
@@ -144,7 +152,7 @@ export default function Valet() {
         (t) => (
           <SpeedManagementToast
             t={t}
-            supervisorId={supervisorId}
+            valleyboyId={valleyboyId}
             initialSpeed={initialSpeed}
             handleClose={handleClose}
           />
@@ -204,7 +212,7 @@ export default function Valet() {
 
   //       setRole(decodedToken.role);
   //       if (decodedToken.role === 4) {
-  //         setSupervisorId(decodedToken.id);
+  //         setvalleyboyId(decodedToken.id);
   //       }
   //     } else {
   //       setRole(null);
@@ -513,7 +521,7 @@ export default function Valet() {
 
                   const response = await axios({
                     method: 'DELETE',
-                    url: `${import.meta.env.VITE_SERVER_URL}/api/salesman/${item._id}`,
+                    url: `${import.meta.env.VITE_API_URL}/valleyboy/delete/${item._id}`,
                     headers: {
                       Authorization: `Bearer ${token}`,
                       'Content-Type': 'application/json'
@@ -521,7 +529,7 @@ export default function Valet() {
                   });
 
                   // Check if deletion was successful
-                  toast.success('Supervisor deleted successfully');
+                  toast.success('valleyboy deleted successfully');
                   fetchData();
                 } catch (error) {
                   console.error(
@@ -612,6 +620,17 @@ export default function Valet() {
       setSortedData(filteredData);
     }
   }, [filteredData, sortBy, sortOrder]);
+  const [maxH, setMaxH] = useState('auto');
+
+  useEffect(() => {
+    function updateHeight() {
+      const bodyH = document.body.clientHeight;
+      setMaxH(`${bodyH * 0.68}px`); // 100% − 30% = 70%
+    }
+    window.addEventListener('resize', updateHeight);
+    updateHeight();
+    return () => window.removeEventListener('resize', updateHeight);
+  }, []);
   return (
     <div className="d-flex flex-column mx-md-3 mt-3 h-auto">
       <Toaster position="top-center" reverseOrder={false} />
@@ -698,7 +717,7 @@ export default function Valet() {
         />
       </div>
 
-      <div style={{ maxHeight: '440px', overflowY: 'auto' }}>
+      <div style={{ maxHeight: maxH, overflowY: 'auto' }}>
         <CTable
           style={{
             fontFamily: 'Roboto, sans-serif',
@@ -830,7 +849,28 @@ export default function Valet() {
                             index % 2 === 0 ? 'transparent' : '#f1f8fd'
                         }}
                       >
-                        {item[col.accessor] || '--'}
+                        {col.accessor === 'password' ? (
+                          <div className="flex items-center justify-center">
+                            <span>
+                              {visiblePassword[index]
+                                ? item[col.accessor]
+                                : '........'}
+                            </span>
+                            <IconButton
+                              onClick={() => togglePasswordVisibility(index)}
+                              size="small"
+                              style={{ marginLeft: 5 }}
+                            >
+                              {visiblePassword[index] ? (
+                                <AiFillEyeInvisible />
+                              ) : (
+                                <AiFillEye />
+                              )}
+                            </IconButton>
+                          </div>
+                        ) : (
+                          item[col.accessor] || '--'
+                        )}
                       </CTableDataCell>
                     ))}
 
@@ -947,7 +987,7 @@ export default function Valet() {
                             ...formData,
                             hotelId: newValue?._id || '',
                             branchId: '', // Reset branch when hotel changes
-                            supervisorId: '' // Reset supervisor when hotel changes
+                            valleyboyId: '' // Reset valleyboy when hotel changes
                           });
                           setBranchError(false); // Clear branch error
                         }}
@@ -1001,7 +1041,7 @@ export default function Valet() {
                             setFormData({
                               ...formData,
                               branchId: newValue?._id || '',
-                              supervisorId: '' // Reset supervisor when branch changes
+                              valleyboyId: '' // Reset valleyboy when branch changes
                             });
                             setBranchError(false);
                           }
@@ -1067,7 +1107,7 @@ export default function Valet() {
                           setFormData({
                             ...formData,
                             branchId: newValue?._id || '', // Update branch
-                            supervisorId: '' // Reset supervisor
+                            valleyboyId: '' // Reset valleyboy
                           })
                         }
                         renderInput={(params) => (
@@ -1119,7 +1159,7 @@ export default function Valet() {
                           setFormData({
                             ...formData,
                             branchId: newValue?._id || '', // Update branch
-                            supervisorId: '' // Reset supervisor
+                            valleyboyId: '' // Reset valleyboy
                           })
                         }
                         renderInput={(params) => (
@@ -1250,7 +1290,7 @@ export default function Valet() {
                             ...formData,
                             hotelId: newValue?._id || '',
                             branchId: '', // Reset branch when hotel changes
-                            supervisorId: '' // Reset supervisor when hotel changes
+                            valleyboyId: '' // Reset valleyboy when hotel changes
                           });
                           setBranchError(false); // Clear branch error
                         }}
@@ -1303,7 +1343,7 @@ export default function Valet() {
                             setFormData({
                               ...formData,
                               branchId: newValue?._id || '',
-                              supervisorId: '' // Reset supervisor when branch changes
+                              valleyboyId: '' // Reset valleyboy when branch changes
                             });
                             setBranchError(false);
                           }

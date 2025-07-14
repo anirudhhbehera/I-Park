@@ -66,7 +66,7 @@ import { jwtDecode } from 'jwt-decode';
 import { Token } from '@mui/icons-material';
 import debounce from 'lodash.debounce';
 import { useSelector } from 'react-redux';
-
+import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai';
 // let role=null
 // if(token){
 //   const decodetoken=jwt_decode(token);
@@ -96,6 +96,13 @@ export default function HotelBranch() {
   const token = useSelector((state) => state.auth.token);
   const user = useSelector((state) => state.auth.user);
   const role = user.role;
+  const [visiblePassword, setvisiblePassword] = useState({});
+  const togglePasswordVisibility = (index) => {
+    setvisiblePassword((prev) => ({
+      ...prev,
+      [index]: !prev[index]
+    }));
+  };
   const handleEditModalClose = () => {
     setFormData({});
     setEditModalOpen(false);
@@ -478,6 +485,16 @@ export default function HotelBranch() {
     }
   }, [filteredData, sortBy, sortOrder]);
 
+  const [maxH, setMaxH] = useState('auto');
+  useEffect(() => {
+    function updateHeight() {
+      const bodyH = document.body.clientHeight;
+      setMaxH(`${bodyH * 0.68}px`);
+    }
+    window.addEventListener('resize', updateHeight);
+    updateHeight();
+    return () => window.removeEventListener('resize', updateHeight);
+  }, []);
   return (
     <div className="d-flex flex-column mx-md-3 mt-3 h-auto ">
       <Toaster position="top-center" reverseOrder={false} />
@@ -560,26 +577,22 @@ export default function HotelBranch() {
         />
       </div>
 
-      <TableContainer
-        component={Paper}
-        sx={{
-          height: 'auto',
-          overflowX: 'auto'
-        }}
-      >
+      <div style={{ maxHeight: maxH, overflowY: 'auto' }}>
         <CTable
           style={{
             fontFamily: 'Roboto, sans-serif',
             fontSize: '14px',
-            borderCollapse: 'collapse',
+            borderCollapse: 'seperate',
             width: '100%',
+            borderSpacing: 0,
+
             border: '1px solid #e0e0e0' // Light border
           }}
           bordered
           align="middle"
           className="mb-2"
           hover
-          responsive
+          // responsive
         >
           <CTableHead>
             <CTableRow>
@@ -591,7 +604,10 @@ export default function HotelBranch() {
                   borderBottom: '1px solid #e0e0e0', // Light border under headers
                   textAlign: 'center', // Center header text
                   verticalAlign: 'middle',
-                  color: 'white'
+                  color: 'white',
+                  position: 'sticky',
+                  top: 0,
+                  zIndex: 10
                 }}
               >
                 SN
@@ -606,7 +622,10 @@ export default function HotelBranch() {
                     textAlign: 'center', // Center header text
                     verticalAlign: 'middle',
                     backgroundColor: 'black',
-                    color: 'white'
+                    color: 'white',
+                    position: 'sticky',
+                    top: 0,
+                    zIndex: 10
                   }}
                   onClick={() => handleSort(col.accessor)}
                 >
@@ -625,7 +644,10 @@ export default function HotelBranch() {
                     textAlign: 'center', // Center header text
                     verticalAlign: 'middle',
                     backgroundColor: 'black',
-                    color: 'white'
+                    color: 'white',
+                    position: 'sticky',
+                    top: 0,
+                    zIndex: 10
                   }}
                 >
                   Actions
@@ -688,7 +710,28 @@ export default function HotelBranch() {
                             index % 2 === 0 ? 'transparent' : '#f1f8fd'
                         }}
                       >
-                        {item[col.accessor] || '--'}
+                        {col.accessor === 'password' ? (
+                          <div className="flex items-center justify-center">
+                            <span>
+                              {visiblePassword[index]
+                                ? item[col.accessor]
+                                : '........'}
+                            </span>
+                            <IconButton
+                              onClick={() => togglePasswordVisibility(index)}
+                              size="small"
+                              style={{ marginLeft: 5 }}
+                            >
+                              {visiblePassword[index] ? (
+                                <AiFillEyeInvisible />
+                              ) : (
+                                <AiFillEye />
+                              )}
+                            </IconButton>
+                          </div>
+                        ) : (
+                          item[col.accessor] || '--'
+                        )}
                       </CTableDataCell>
                     ))}
 
@@ -751,7 +794,7 @@ export default function HotelBranch() {
             )}
           </CTableBody>
         </CTable>
-      </TableContainer>
+      </div>
 
       <StyledTablePagination>
         <TablePagination

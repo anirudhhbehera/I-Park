@@ -484,6 +484,17 @@ export default function HotelBranchGroup() {
       setSortedData(filteredData);
     }
   }, [filteredData, sortBy, sortOrder]);
+
+  const [maxH, setMaxH] = useState('auto');
+  useEffect(() => {
+    function updateHeight() {
+      const bodyH = document.body.clientHeight;
+      setMaxH(`${bodyH * 0.68}px`);
+    }
+    window.addEventListener('resize', updateHeight);
+    updateHeight();
+    return () => window.removeEventListener('resize', updateHeight);
+  }, []);
   return (
     <div className="d-flex flex-column mx-md-3 mt-3 h-auto">
       <Toaster position="top-center" reverseOrder={false} />
@@ -554,18 +565,13 @@ export default function HotelBranchGroup() {
         </div>
       </div>
 
-      <TableContainer
-        component={Paper}
-        sx={{
-          height: 'auto',
-          overflowX: 'auto'
-        }}
-      >
+      <div style={{ maxHeight: maxH, overflowY: 'auto' }}>
         <CTable
           style={{
             fontFamily: 'Roboto, sans-serif',
             fontSize: '14px',
-            borderCollapse: 'collapse',
+            borderCollapse: 'seperate',
+            borderSpacing: 0,
             width: '100%',
             border: '1px solid #e0e0e0' // Light border
           }}
@@ -573,7 +579,7 @@ export default function HotelBranchGroup() {
           align="middle"
           className="mb-2"
           hover
-          responsive
+          // responsive
         >
           <CTableHead>
             <CTableRow>
@@ -585,7 +591,10 @@ export default function HotelBranchGroup() {
                   borderBottom: '1px solid #e0e0e0', // Light border under headers
                   textAlign: 'center', // Center header text
                   verticalAlign: 'middle',
-                  color: 'white'
+                  color: 'white',
+                  position: 'sticky',
+                  top: 0,
+                  zIndex: 10
                 }}
               >
                 SN
@@ -600,7 +609,10 @@ export default function HotelBranchGroup() {
                     textAlign: 'center', // Center header text
                     verticalAlign: 'middle',
                     backgroundColor: 'black',
-                    color: 'white'
+                    color: 'white',
+                    position: 'sticky',
+                    top: 0,
+                    zIndex: 10
                   }}
                   onClick={() => handleSort(col.accessor)}
                 >
@@ -620,7 +632,10 @@ export default function HotelBranchGroup() {
                   textAlign: 'center', // Center header text
                   verticalAlign: 'middle',
                   backgroundColor: 'black',
-                  color: 'white'
+                  color: 'white',
+                  position: 'sticky',
+                  top: 0,
+                  zIndex: 10
                 }}
               >
                 Actions
@@ -766,8 +781,7 @@ export default function HotelBranchGroup() {
             )}
           </CTableBody>
         </CTable>
-      </TableContainer>
-
+      </div>
       <StyledTablePagination>
         <TablePagination
           rowsPerPageOptions={[
@@ -872,36 +886,41 @@ export default function HotelBranchGroup() {
                         <InputLabel>{column.Header}</InputLabel>
                         <Select
                           multiple
-                          value={formData.assignedBranchsId || []}
-                          onChange={(e) => {
+                          value={
+                            Array.isArray(formData.assignedBranchsId)
+                              ? formData.assignedBranchsId
+                              : []
+                          }
+                          onChange={(e) =>
                             setFormData({
                               ...formData,
                               assignedBranchsId: e.target.value
-                            });
-                          }}
+                            })
+                          }
                           input={<OutlinedInput label={column.Header} />}
                           renderValue={(selected) =>
-                            selected
-                              .map((id) => {
-                                const branch = Branches.find(
-                                  (b) => b._id === id
-                                );
-                                return branch ? branch.name : '';
-                              })
-                              .join(', ')
+                            Array.isArray(selected)
+                              ? selected
+                                  .map((id) => {
+                                    const branch = Branches.find(
+                                      (b) => b._id === id
+                                    );
+                                    return branch ? branch.name : '';
+                                  })
+                                  .join(', ')
+                              : ''
                           }
                         >
-                          {Branches &&
-                            Branches.map((branch) => (
-                              <MenuItem key={branch._id} value={branch._id}>
-                                <Checkbox
-                                  checked={(
-                                    formData.assignedBranchsId || []
-                                  ).includes(branch._id)}
-                                />
-                                <ListItemText primary={branch.name} />
-                              </MenuItem>
-                            ))}
+                          {Branches?.map((branch) => (
+                            <MenuItem key={branch._id} value={branch._id}>
+                              <Checkbox
+                                checked={(
+                                  formData.assignedBranchsId || []
+                                ).includes(branch._id)}
+                              />
+                              <ListItemText primary={branch.name} />
+                            </MenuItem>
+                          ))}
                         </Select>
                       </FormControl>
                     ) : (
